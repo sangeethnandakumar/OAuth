@@ -21,7 +21,7 @@ namespace MVCClient
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             //Add Support for OAuth 2.0 Code-Grant With Identity Server 4
             services.AddAuthentication(opt =>
@@ -35,9 +35,10 @@ namespace MVCClient
                 opt.SignInScheme = "Cookies";
                 opt.Authority = "https://localhost:5005";
                 opt.ClientId = "mvc-client";
-                opt.ResponseType = "code";
-                opt.SaveTokens = true;
+                opt.ResponseType = "code";                
                 opt.ClientSecret = "MVCSecret";
+                opt.UseTokenLifetime = true;
+                opt.SaveTokens = false;
             });
         }
 
@@ -54,6 +55,7 @@ namespace MVCClient
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

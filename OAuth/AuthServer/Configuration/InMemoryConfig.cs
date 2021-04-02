@@ -16,12 +16,18 @@ namespace AuthServer.Configuration
           };
 
         public static IEnumerable<ApiScope> GetApiScopes() =>
-           new List<ApiScope> { new ApiScope("companyApi", "CompanyEmployee API") };
+           new List<ApiScope> {
+               new ApiScope("identity", "CompanyEmployee API"),
+               new ApiScope("firstname", "CompanyEmployee API"),
+               new ApiScope("lastname", "CompanyEmployee API"),
+               new ApiScope("email", "CompanyEmployee API"),
+               new ApiScope("username", "CompanyEmployee API"),
+           };
 
-        public static IEnumerable<ApiResource> GetApiResources() =>
-            new List<ApiResource>
+        public static IEnumerable<IdentityServer4.Models.ApiResource> GetApiResources() =>
+            new List<IdentityServer4.Models.ApiResource>
             {
-                new ApiResource("companyApi", "CompanyEmployee API")
+                new IdentityServer4.Models.ApiResource("companyApi", "CompanyEmployee API")
                 {
                     Scopes = { "companyApi" }
                 }
@@ -54,27 +60,39 @@ namespace AuthServer.Configuration
               }
           };
 
-        public static IEnumerable<Client> GetClients() =>
-            new List<Client>
+        public static IEnumerable<IdentityServer4.Models.Client> GetClients() =>
+            new List<IdentityServer4.Models.Client>
             {
-               new Client
-               {
-                    ClientId = "company-employee",
-                    ClientSecrets = new [] { new Secret("codemazesecret".Sha512()) },
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
-                    AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId, "companyApi" }
-               },
-               new Client
-               {
-                   ClientName = "MVC Client",
-                   ClientId = "mvc-client",
-                   AllowedGrantTypes = GrantTypes.Code,
-                   RedirectUris = new List<string>{ "https://localhost:44326/signin-oidc" },
-                   RequirePkce = false,
-                   AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId, IdentityServerConstants.StandardScopes.Profile },
-                   ClientSecrets = { new Secret("MVCSecret".Sha512()) },
-                   PostLogoutRedirectUris = new List<string> { "https://localhost:44326/signout-callback-oidc" }
-               }
+                   new IdentityServer4.Models.Client
+                   {
+                        ClientId = "company-employee",
+                        ClientSecrets = new [] { new Secret("codemazesecret".Sha512()) },
+                        AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
+                        AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId, "companyApi" }
+                   },
+                   new IdentityServer4.Models.Client
+                   {
+                       ClientName = "MVC Client",
+                       ClientId = "mvc-client",
+                       AllowedGrantTypes = GrantTypes.Code,
+                       RedirectUris = new List<string>{ "https://localhost:44326/signin-oidc" },
+                       RequirePkce = false,
+                       AllowedScopes = {
+                           IdentityServerConstants.StandardScopes.OpenId,
+                           IdentityServerConstants.StandardScopes.Profile,
+                           "identity",
+                           "firstname",
+                           "lastname",
+                           "email",
+                           "username"
+                           },
+                       ClientSecrets = { new Secret("MVCSecret".Sha512()) },
+                       AccessTokenLifetime = 5,
+                       IdentityTokenLifetime = 5,
+                       UpdateAccessTokenClaimsOnRefresh = true,
+                       AlwaysIncludeUserClaimsInIdToken = true,
+                       PostLogoutRedirectUris = new List<string> { "https://localhost:44326/signout-callback-oidc" }
+                   }
             };
     }
 }

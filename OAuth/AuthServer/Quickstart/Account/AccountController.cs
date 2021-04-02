@@ -123,7 +123,7 @@ namespace IdentityServerHost.Quickstart.UI
                         props = new AuthenticationProperties
                         {
                             IsPersistent = true,
-                            ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
+                            ExpiresUtc = DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(5))
                         };
                     };
                     var isuser = new IdentityServerUser(user.Id.ToString())

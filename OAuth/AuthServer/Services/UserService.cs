@@ -15,7 +15,8 @@ namespace AuthServer.Services
                 FirstName = "Sangeeth",
                 LastName = "Nandakumar",
                 Id = Guid.NewGuid(),
-                Username = "sangee"
+                Username = "sangee",
+                Email = "sangee@gmail.com"
             };
         }
 
