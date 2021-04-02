@@ -37,7 +37,8 @@ namespace AuthServer
                 .AddProfileService<ProfileService>()
                 .AddInMemoryApiScopes(apiScopes)
                 .AddInMemoryApiResources(apiResources)
-                .AddInMemoryClients(clients)
+                //.AddInMemoryClients(clients)
+                .AddClientStore<MyClientStore>()
                 .AddInMemoryIdentityResources(identityResources)
                 .AddDeveloperSigningCredential();
             services.AddControllersWithViews();
