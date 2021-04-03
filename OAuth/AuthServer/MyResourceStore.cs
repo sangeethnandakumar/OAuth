@@ -3,6 +3,7 @@ using ExpressData;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,17 @@ namespace AuthServer
 {
     public class MyResourceStore : IResourceStore
     {
+        private readonly IConfiguration config;
+        private readonly string connectionString;
+
+        public MyResourceStore(IConfiguration config)
+        {
+            this.config = config;
+            this.connectionString = config.GetConnectionString("AuthConfigDatabase");
+        }
+
         public async Task<IEnumerable<IdentityServer4.Models.ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
         {
-            var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var apis = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources WHERE Name='{apiResourceNames}' AND IsActive=1", connectionString);
             if (apis != null)
             {
@@ -50,7 +59,6 @@ namespace AuthServer
                     likeStatements += $"SupportedScopes LIKE '%{scopeNames[i]}%' OR ";
                 }
             }
-            var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var apis = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources WHERE ({likeStatements}) AND IsActive=1", connectionString);
             if (apis != null)
             {
@@ -86,7 +94,6 @@ namespace AuthServer
                     likeStatements += $"ScopeName='{scopeNames[i]}' OR ";
                 }
             }
-            var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ({likeStatements})", connectionString);
             if (scopes != null)
             {
@@ -122,9 +129,6 @@ namespace AuthServer
                   new IdentityResources.OpenId(),
                   new IdentityResources.Profile()
              };
-
-            var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
-
             var apis = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources WHERE IsActive=1", connectionString);
             if (apis != null)
             {
