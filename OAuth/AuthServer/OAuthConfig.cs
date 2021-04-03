@@ -2,16 +2,13 @@
 using System;
 using System.Collections.Generic;
 
-using IdentityServer4.Models;
-
-using IdentityServer4;
-
 namespace AuthServer
 {
     public class ApiResource
     {
         public string Name { get; set; }
         public string DisplayName { get; set; }
+        public List<string> Scopes { get; set; }
     }
 
     public class Client
@@ -40,7 +37,12 @@ namespace AuthServer
             var result = new List<IdentityServer4.Models.ApiResource>();
             foreach (var res in ApiResources)
             {
-                result.Add(new IdentityServer4.Models.ApiResource(res.Name, res.DisplayName));
+                result.Add(new IdentityServer4.Models.ApiResource
+                {
+                    Name = res.Name,
+                    DisplayName = res.DisplayName,
+                    Scopes = res.Scopes
+                });
             }
             return result;
         }

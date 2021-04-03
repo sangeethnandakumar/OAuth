@@ -23,55 +23,60 @@ namespace AuthServer
                 var allowedScopes = new List<string>() { "openid", "profile" };
                 allowedScopes.AddRange(client.AllowedScopes.Split(","));
 
-                if (client.AllowedGrantTypes == "code")
+                switch (client.AllowedGrantTypes)
                 {
-                    return new IdentityServer4.Models.Client
-                    {
-                        ClientName = client.ClientName,
-                        ClientId = client.ClientId,
-                        AllowedGrantTypes = GrantTypes.Code,
-                        RedirectUris = new List<string> { client.RedirectUris },
-                        ClientSecrets = { new Secret(client.ClientSecret.Sha512()) },
-                        AccessTokenLifetime = client.AccessTokenLifetime,
-                        IdentityTokenLifetime = client.IdentityTokenLifetime,
-                        RequirePkce = false,
-                        UpdateAccessTokenClaimsOnRefresh = true,
-                        AlwaysIncludeUserClaimsInIdToken = true,
-                        PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUris },
-                        AllowedScopes = allowedScopes
-                    };
-                }
-                else if (client.AllowedGrantTypes == "client_credentials")
-                {
-                    return new IdentityServer4.Models.Client
-                    {
-                        ClientId = client.ClientId,
-                        AllowedGrantTypes = GrantTypes.ClientCredentials,
-                        ClientSecrets =
+                    case "code":
+                        return new IdentityServer4.Models.Client
                         {
-                            new Secret(client.ClientSecret.Sha256())
-                        },
-                        AllowedScopes = allowedScopes,
-                        AccessTokenLifetime = client.AccessTokenLifetime,
-                        IdentityTokenLifetime = client.IdentityTokenLifetime
-                    };
-                }
-                else if (client.AllowedGrantTypes == "implict")
-                {
-                    var allowedCorsOrgins = new List<string>();
-                    allowedCorsOrgins.AddRange(client.AllowedCorsOrigins.Split(","));
-                    return new IdentityServer4.Models.Client
-                    {
-                        ClientId = client.ClientId,
-                        ClientName = client.ClientName,
-                        AllowedGrantTypes = GrantTypes.Implicit,
-                        AllowAccessTokensViaBrowser = true,
-                        AllowedCorsOrigins = allowedCorsOrgins,
-                        AllowRememberConsent = true,
-                        AllowedScopes = allowedScopes,
-                        RedirectUris = { client.RedirectUris },
-                        PostLogoutRedirectUris = { client.PostLogoutRedirectUris }
-                    };
+                            ClientName = client.ClientName,
+                            ClientId = client.ClientId,
+                            AllowedGrantTypes = GrantTypes.Code,
+                            RedirectUris = new List<string> { client.RedirectUris },
+                            ClientSecrets = { new Secret(client.ClientSecret.Sha512()) },
+                            AccessTokenLifetime = client.AccessTokenLifetime,
+                            IdentityTokenLifetime = client.IdentityTokenLifetime,
+                            RequirePkce = false,
+                            UpdateAccessTokenClaimsOnRefresh = true,
+                            AlwaysIncludeUserClaimsInIdToken = true,
+                            PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUris },
+                            AllowedScopes = allowedScopes
+                        };
+                        break;
+
+                    case "client_credentials":
+                        return new IdentityServer4.Models.Client
+                        {
+                            ClientId = client.ClientId,
+                            AllowedGrantTypes = GrantTypes.ClientCredentials,
+                            ClientSecrets =
+                            {
+                                new Secret(client.ClientSecret.Sha256())
+                            },
+                            AllowedScopes = allowedScopes,
+                            AccessTokenLifetime = client.AccessTokenLifetime,
+                            IdentityTokenLifetime = client.IdentityTokenLifetime
+                        };
+                        break;
+
+                    case "implicit":
+                        var allowedCorsOrgins = new List<string>();
+                        allowedCorsOrgins.AddRange(client.AllowedCorsOrigins.Split(","));
+                        return new IdentityServer4.Models.Client
+                        {
+                            ClientId = client.ClientId,
+                            ClientName = client.ClientName,
+                            AllowedGrantTypes = GrantTypes.Implicit,
+                            AllowAccessTokensViaBrowser = true,
+                            AllowedCorsOrigins = allowedCorsOrgins,
+                            AllowRememberConsent = true,
+                            AllowedScopes = allowedScopes,
+                            RedirectUris = { client.RedirectUris },
+                            PostLogoutRedirectUris = { client.PostLogoutRedirectUris }
+                        };
+                        break;
+
+                    default:
+                        return null;
                 }
             }
             return null;
