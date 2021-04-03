@@ -38,7 +38,7 @@ namespace MVCClient
                 opt.ResponseType = "code";                
                 opt.ClientSecret = "MVCSecret";
                 opt.UseTokenLifetime = true;
-                opt.SaveTokens = false;
+                opt.SaveTokens = true;
             });
         }
 

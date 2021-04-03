@@ -66,7 +66,7 @@ namespace AuthServer
             var result = new List<IdentityServer4.Models.Client>();
             foreach (var client in Clients)
             {
-                if(client.GrandType == "code")
+                if (client.GrandType == "code")
                 {
                     result.Add(new IdentityServer4.Models.Client
                     {
@@ -81,9 +81,9 @@ namespace AuthServer
                         RequirePkce = false,
                         UpdateAccessTokenClaimsOnRefresh = true,
                         AlwaysIncludeUserClaimsInIdToken = true,
-                        PostLogoutRedirectUris = new List<string> { "https://localhost:44326/signout-callback-oidc" }
+                        PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUri }
                     });
-                }                
+                }
             }
             return result;
         }

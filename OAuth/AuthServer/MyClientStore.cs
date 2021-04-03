@@ -22,21 +22,57 @@ namespace AuthServer
             {
                 var allowedScopes = new List<string>() { "openid", "profile" };
                 allowedScopes.AddRange(client.AllowedScopes.Split(","));
-                return new IdentityServer4.Models.Client
+
+                if (client.AllowedGrantTypes == "code")
                 {
-                    ClientName = client.ClientName,
-                    ClientId = client.ClientId,
-                    AllowedGrantTypes = GrantTypes.Code,
-                    RedirectUris = new List<string> { client.RedirectUris },
-                    ClientSecrets = { new Secret(client.ClientSecret.Sha512()) },
-                    AccessTokenLifetime = client.AccessTokenLifetime,
-                    IdentityTokenLifetime = client.IdentityTokenLifetime,
-                    RequirePkce = false,
-                    UpdateAccessTokenClaimsOnRefresh = true,
-                    AlwaysIncludeUserClaimsInIdToken = true,
-                    PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUris },
-                    AllowedScopes = allowedScopes
-                };
+                    return new IdentityServer4.Models.Client
+                    {
+                        ClientName = client.ClientName,
+                        ClientId = client.ClientId,
+                        AllowedGrantTypes = GrantTypes.Code,
+                        RedirectUris = new List<string> { client.RedirectUris },
+                        ClientSecrets = { new Secret(client.ClientSecret.Sha512()) },
+                        AccessTokenLifetime = client.AccessTokenLifetime,
+                        IdentityTokenLifetime = client.IdentityTokenLifetime,
+                        RequirePkce = false,
+                        UpdateAccessTokenClaimsOnRefresh = true,
+                        AlwaysIncludeUserClaimsInIdToken = true,
+                        PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUris },
+                        AllowedScopes = allowedScopes
+                    };
+                }
+                else if (client.AllowedGrantTypes == "client_credentials")
+                {
+                    return new IdentityServer4.Models.Client
+                    {
+                        ClientId = client.ClientId,
+                        AllowedGrantTypes = GrantTypes.ClientCredentials,
+                        ClientSecrets =
+                        {
+                            new Secret(client.ClientSecret.Sha256())
+                        },
+                        AllowedScopes = allowedScopes,
+                        AccessTokenLifetime = client.AccessTokenLifetime,
+                        IdentityTokenLifetime = client.IdentityTokenLifetime
+                    };
+                }
+                else if (client.AllowedGrantTypes == "implict")
+                {
+                    var allowedCorsOrgins = new List<string>();
+                    allowedCorsOrgins.AddRange(client.AllowedCorsOrigins.Split(","));
+                    return new IdentityServer4.Models.Client
+                    {
+                        ClientId = client.ClientId,
+                        ClientName = client.ClientName,
+                        AllowedGrantTypes = GrantTypes.Implicit,
+                        AllowAccessTokensViaBrowser = true,
+                        AllowedCorsOrigins = allowedCorsOrgins,
+                        AllowRememberConsent = true,
+                        AllowedScopes = allowedScopes,
+                        RedirectUris = { client.RedirectUris },
+                        PostLogoutRedirectUris = { client.PostLogoutRedirectUris }
+                    };
+                }
             }
             return null;
         }

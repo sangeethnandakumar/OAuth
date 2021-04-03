@@ -28,6 +28,7 @@ namespace AuthServer
             var apiScopes = config.GetApiScopes();
 
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<MyCORSPolicy>();
 
             services.AddIdentityServer(options =>
                 {
@@ -37,6 +38,7 @@ namespace AuthServer
                 .AddProfileService<ProfileService>()
                 .AddInMemoryApiScopes(apiScopes)
                 .AddInMemoryApiResources(apiResources)
+                .AddResourceStore<MyResourceStore>()
                 //.AddInMemoryClients(clients)
                 .AddClientStore<MyClientStore>()
                 .AddInMemoryIdentityResources(identityResources)
