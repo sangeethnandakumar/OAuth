@@ -40,7 +40,7 @@
             authority: "https://localhost:5005",
             client_id: "react-client",
             redirect_uri: "https://localhost:44334/callback.html",
-            response_type: "code",
+            response_type: "id_token token",
             scope: "openid profile Api1",
             post_logout_redirect_uri: "https://localhost:44334/index.html",
         };
@@ -63,7 +63,7 @@
 
         function api() {
             mgr.getUser().then(function (user) {
-                var url = "http://localhost:5001/identity";
+                var url = "https://localhost:44365/WeatherForecast";
 
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", url);

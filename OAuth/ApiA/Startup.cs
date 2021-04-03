@@ -49,6 +49,15 @@ namespace ApiA
                     policy.RequireClaim("scope", "Api1");
                 });
             });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins("https://localhost:44334")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,6 +73,7 @@ namespace ApiA
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseCors("default");
 
             app.UseAuthentication();
             app.UseAuthorization();

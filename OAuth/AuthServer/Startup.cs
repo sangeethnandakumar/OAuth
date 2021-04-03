@@ -22,26 +22,29 @@ namespace AuthServer
         {
             var config = new OAuthConfig();
             Configuration.Bind("OAuth", config);
+
             var clients = config.GetClients();
             var apiResources = config.GetApiResources();
             var identityResources = config.GetIdentityResources();
             var apiScopes = config.GetApiScopes();
 
             services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<MyCORSPolicy>();
 
             services.AddIdentityServer(options =>
                 {
                     options.Authentication.CookieLifetime = TimeSpan.FromSeconds(config.IdentityServerCookieLifetime);
                 })
                 .AddDeveloperSigningCredential()
-                .AddProfileService<ProfileService>()
-                .AddInMemoryApiScopes(apiScopes)
-                .AddInMemoryApiResources(apiResources)
+                
+                .AddCorsPolicyService<MyCORSPolicy>()
                 .AddResourceStore<MyResourceStore>()
-                //.AddInMemoryClients(clients)
                 .AddClientStore<MyClientStore>()
-                .AddInMemoryIdentityResources(identityResources)
+                .AddProfileService<ProfileService>()
+
+                //.AddInMemoryApiScopes(apiScopes)                
+                //.AddInMemoryApiResources(apiResources)
+                //.AddInMemoryIdentityResources(identityResources)
+
                 .AddDeveloperSigningCredential();
             services.AddControllersWithViews();
         }

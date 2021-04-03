@@ -33,10 +33,23 @@ namespace AuthServer
             return null;
         }
 
-        public async Task<IEnumerable<IdentityServer4.Models.ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<IdentityServer4.Models.ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopesList)
         {
+            var scopeNames = scopesList.ToList();
+            var likeStatements = "";
+            for (var i = 0; i < scopeNames.Count(); i++)
+            {
+                if (i == scopeNames.Count() - 1)
+                {
+                    likeStatements += $"SupportedScopes LIKE '%{scopeNames[i]}%'";
+                }
+                else
+                {
+                    likeStatements += $"SupportedScopes LIKE '%{scopeNames[i]}%' OR ";
+                }
+            }
             var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
-            var apis = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources WHERE SupportedScopes LIKE '%{scopeNames}%' AND IsActive=1", connectionString);
+            var apis = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources WHERE ({likeStatements}) AND IsActive=1", connectionString);
             if (apis != null)
             {
                 var result = new List<IdentityServer4.Models.ApiResource>();
@@ -54,19 +67,92 @@ namespace AuthServer
             return null;
         }
 
-        public Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopesList)
         {
-            throw new NotImplementedException();
+            var scopeNames = scopesList.ToList();
+            var likeStatements = "";
+            for (var i = 0; i < scopeNames.Count(); i++)
+            {
+                if (i == scopeNames.Count() - 1)
+                {
+                    likeStatements += $"ScopeName='{scopeNames[i]}'";
+                }
+                else
+                {
+                    likeStatements += $"ScopeName='{scopeNames[i]}' OR ";
+                }
+            }
+            var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+            var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ({likeStatements})", connectionString);
+            if (scopes != null)
+            {
+                var result = new List<IdentityServer4.Models.ApiScope>();
+                foreach (var scope in scopes)
+                {
+                    result.Add(new IdentityServer4.Models.ApiScope
+                    {
+                        Name = scope.ScopeName,
+                        DisplayName = scope.ScopeDescription
+                    });
+                }
+                return result;
+            }
+            return null;
         }
 
-        public Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
-            throw new NotImplementedException();
+            return new List<IdentityResource>
+             {
+                  new IdentityResources.OpenId(),
+                  new IdentityResources.Profile()
+             };
         }
 
-        public Task<Resources> GetAllResourcesAsync()
+        public async Task<Resources> GetAllResourcesAsync()
         {
-            throw new NotImplementedException();
+            var allResources = new Resources();
+            allResources.IdentityResources =
+             new List<IdentityResource>
+             {
+                  new IdentityResources.OpenId(),
+                  new IdentityResources.Profile()
+             };
+
+            var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+
+            var apis = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources WHERE IsActive=1", connectionString);
+            if (apis != null)
+            {
+                var result = new List<IdentityServer4.Models.ApiResource>();
+                foreach (var api in apis)
+                {
+                    result.Add(new IdentityServer4.Models.ApiResource
+                    {
+                        Name = api.Name,
+                        DisplayName = api.DisplayName,
+                        Scopes = api.SupportedScopes.Split(",").ToList()
+                    });
+                }
+                allResources.ApiResources = result;
+            }
+
+            var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes", connectionString);
+            if (scopes != null)
+            {
+                var result = new List<IdentityServer4.Models.ApiScope>();
+                foreach (var scope in scopes)
+                {
+                    result.Add(new IdentityServer4.Models.ApiScope
+                    {
+                        Name = scope.ScopeName,
+                        DisplayName = scope.ScopeDescription
+                    });
+                }
+                allResources.ApiScopes = result;
+            }
+
+            return allResources;
         }
     }
 }
