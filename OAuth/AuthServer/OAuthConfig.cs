@@ -25,6 +25,7 @@ namespace AuthServer
         public string RedirectUri { get; set; }
         public string PostLogoutRedirectUri { get; set; }
         public List<string> AllowedScopes { get; set; }
+        public List<string> AllowedCrossOrgins { get; set; }
     }
 
     public class OAuthConfig
@@ -66,23 +67,60 @@ namespace AuthServer
             var result = new List<IdentityServer4.Models.Client>();
             foreach (var client in Clients)
             {
-                if (client.GrandType == "code")
+                var allowedScopes = new List<string>() { "openid", "profile" };
+                allowedScopes.AddRange(client.AllowedScopes);
+                switch (client.GrandType)
                 {
-                    result.Add(new IdentityServer4.Models.Client
-                    {
-                        ClientName = client.ClientName,
-                        ClientId = client.ClientId,
-                        AllowedGrantTypes = GrantTypes.Code,
-                        RedirectUris = new List<string> { client.RedirectUri },
-                        AllowedScopes = client.AllowedScopes,
-                        ClientSecrets = { new Secret(client.ClientSecret.Sha512()) },
-                        AccessTokenLifetime = client.AccessTokenLifetime,
-                        IdentityTokenLifetime = client.IdentityTokenLifetime,
-                        RequirePkce = false,
-                        UpdateAccessTokenClaimsOnRefresh = true,
-                        AlwaysIncludeUserClaimsInIdToken = true,
-                        PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUri }
-                    });
+                    case "code":
+                        result.Add(new IdentityServer4.Models.Client
+                        {
+                            ClientName = client.ClientName,
+                            ClientId = client.ClientId,
+                            AllowedGrantTypes = GrantTypes.Code,
+                            RedirectUris = new List<string> { client.RedirectUri },
+                            AllowedScopes = allowedScopes,
+                            ClientSecrets = { new Secret(client.ClientSecret.Sha512()) },
+                            AccessTokenLifetime = client.AccessTokenLifetime,
+                            IdentityTokenLifetime = client.IdentityTokenLifetime,
+                            RequirePkce = false,
+                            UpdateAccessTokenClaimsOnRefresh = true,
+                            AlwaysIncludeUserClaimsInIdToken = true,
+                            PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUri },
+                        });
+                        break;
+
+                    case "client_credentials":
+                        result.Add(new IdentityServer4.Models.Client
+                        {
+                            ClientId = client.ClientId,
+                            AllowedGrantTypes = GrantTypes.ClientCredentials,
+                            ClientSecrets =
+                            {
+                                new Secret(client.ClientSecret.Sha256())
+                            },
+                            AllowedScopes = allowedScopes,
+                            AccessTokenLifetime = client.AccessTokenLifetime,
+                            IdentityTokenLifetime = client.IdentityTokenLifetime
+                        });
+                        break;
+
+                    case "implicit":
+                        result.Add(new IdentityServer4.Models.Client
+                        {
+                            ClientId = client.ClientId,
+                            ClientName = client.ClientName,
+                            AllowedGrantTypes = GrantTypes.Implicit,
+                            AllowAccessTokensViaBrowser = true,
+                            AllowedCorsOrigins = client.AllowedCrossOrgins,
+                            AllowRememberConsent = true,
+                            AllowedScopes = allowedScopes,
+                            RedirectUris = { client.RedirectUri },
+                            PostLogoutRedirectUris = { client.PostLogoutRedirectUri }
+                        });
+                        break;
+
+                    default:
+                        break;
                 }
             }
             return result;

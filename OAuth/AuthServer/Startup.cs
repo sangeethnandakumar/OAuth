@@ -22,30 +22,48 @@ namespace AuthServer
         {
             var config = new OAuthConfig();
             Configuration.Bind("OAuth", config);
-
-            var clients = config.GetClients();
-            var apiResources = config.GetApiResources();
-            var identityResources = config.GetIdentityResources();
-            var apiScopes = config.GetApiScopes();
-
             services.AddSingleton<IUserService, UserService>();
 
-            services.AddIdentityServer(options =>
+            /*
+             If "DynamicalyManagedAuth = TRUE" - Then AuthServer will switch to dynamic authentication mode from persistance stores. Else it will fetch static OAuth config from appsettings.json
+             Use DynamicalyManagedAuth if you want to administrate clients, api resources and scopes on run
+             DynamicalyManagedAuth also allows managing auth server directly from administration dashboard
+             */
+            var DynamicalyManagedAuth = false;
+
+            if (DynamicalyManagedAuth)
+            {
+                services.AddIdentityServer(options =>
                 {
                     options.Authentication.CookieLifetime = TimeSpan.FromSeconds(config.IdentityServerCookieLifetime);
                 })
                 .AddDeveloperSigningCredential()
-                
                 .AddCorsPolicyService<MyCORSPolicy>()
                 .AddResourceStore<MyResourceStore>()
                 .AddClientStore<MyClientStore>()
                 .AddProfileService<ProfileService>()
-
-                //.AddInMemoryApiScopes(apiScopes)                
-                //.AddInMemoryApiResources(apiResources)
-                //.AddInMemoryIdentityResources(identityResources)
-
                 .AddDeveloperSigningCredential();
+            }
+            else
+            {
+                var clients = config.GetClients();
+                var apiResources = config.GetApiResources();
+                var identityResources = config.GetIdentityResources();
+                var apiScopes = config.GetApiScopes();
+
+                services.AddIdentityServer(options =>
+                {
+                    options.Authentication.CookieLifetime = TimeSpan.FromSeconds(config.IdentityServerCookieLifetime);
+                })
+                .AddDeveloperSigningCredential()
+                .AddInMemoryApiScopes(apiScopes)
+                .AddInMemoryApiResources(apiResources)
+                .AddInMemoryIdentityResources(identityResources)
+                .AddInMemoryClients(clients)
+                .AddProfileService<ProfileService>()
+                .AddDeveloperSigningCredential();
+            }
+
             services.AddControllersWithViews();
         }
 
