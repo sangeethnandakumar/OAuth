@@ -21,11 +21,13 @@ namespace AuthServer
                 var result = new List<IdentityServer4.Models.ApiResource>();
                 foreach (var api in apis)
                 {
+                    var availableScopes = new List<string>() { "openid", "profile" };
+                    availableScopes.AddRange(api.SupportedScopes.Split(",").ToList());
                     result.Add(new IdentityServer4.Models.ApiResource
                     {
                         Name = api.Name,
                         DisplayName = api.DisplayName,
-                        Scopes = api.SupportedScopes.Split(",").ToList()
+                        Scopes = availableScopes
                     });
                 }
                 return result;
@@ -55,11 +57,13 @@ namespace AuthServer
                 var result = new List<IdentityServer4.Models.ApiResource>();
                 foreach (var api in apis)
                 {
+                    var availableScopes = new List<string>() { "openid", "profile" };
+                    availableScopes.AddRange(api.SupportedScopes.Split(",").ToList());
                     result.Add(new IdentityServer4.Models.ApiResource
                     {
                         Name = api.Name,
                         DisplayName = api.DisplayName,
-                        Scopes = api.SupportedScopes.Split(",").ToList()
+                        Scopes = availableScopes
                     });
                 }
                 return result;
@@ -127,11 +131,13 @@ namespace AuthServer
                 var result = new List<IdentityServer4.Models.ApiResource>();
                 foreach (var api in apis)
                 {
+                    var availableScopes = new List<string>() { "openid", "profile" };
+                    availableScopes.AddRange(api.SupportedScopes.Split(",").ToList());
                     result.Add(new IdentityServer4.Models.ApiResource
                     {
                         Name = api.Name,
                         DisplayName = api.DisplayName,
-                        Scopes = api.SupportedScopes.Split(",").ToList()
+                        Scopes = availableScopes
                     });
                 }
                 allResources.ApiResources = result;
