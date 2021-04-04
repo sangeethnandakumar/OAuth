@@ -12,6 +12,11 @@ function init() {
         loadClientDetails(id);
     });
 
+    $('.api-handle').on('click', function () {
+        var id = $(this).attr('data-id');
+        loadApiDetails(id);
+    });
+
     $('#client_grant').on('change', function () {
         adjustFormWithGrant($(this).dropdown('get value'));
     });
@@ -20,6 +25,11 @@ function init() {
 function openClientAssignScopesModel() {
     $('#client_assign_scopes_model').modal('show');
 }
+
+function openApiAssignScopesModel() {
+    $('#api_assign_scopes_model').modal('show');
+}
+
 
 function resetForm() {
     $('#client_secret').parent().show();
@@ -97,16 +107,92 @@ function assignNewScopesToClient() {
     });
 }
 
+function assignNewScopesToApi() {
+    var apiId = $('#selected-api').val();
+    var newScopes = $('#api_unappliedscope_list').dropdown('get value');
+    $.get("Administration/AssignNewScopesToApi", { apiId: apiId, newScopes: newScopes.toString() }, function (response) {
+        location.reload();
+    });
+}
+
+function deleteApiScope(apiId, scopeName) {
+    $.get("Administration/DeleteApiScope", { apiId: apiId, scopeName: scopeName }, function (response) {
+        location.reload();
+    });
+}
+
 function deleteClientScope(clientId, scopeName) {
     $.get("Administration/DeleteClientScope", { clientId: clientId, scopeName: scopeName }, function (response) {
         location.reload();
     });
 }
 
+function loadScopeDetails(scopename) {
+    $('#selected-scope').val(scopename);
+
+    $('#infotab').hide();
+    $('#client_details').hide();
+    $('#api_details').hide();
+    $('#scope_details').show();
+
+
+    $.get("Administration/GetScope", { scopename: scopename }, function (response) {
+        console.log(response);
+        $('#scope_name').val(response.scopeName);
+        $('#scope_desc').val(response.scopeDescription);
+    });
+
+}
+
+
+function loadApiDetails(apiId) {
+    $('#selected-api').val(apiId);
+
+    $('#infotab').hide();
+    $('#client_details').hide();
+    $('#scope_details').hide();
+    $('#api_details').show();
+
+
+    $.get("Administration/GetApi", { apiId: apiId }, function (response) {
+        console.log(response);
+        $('#api_name').val(response.name);
+        $('#api_display_name').val(response.displayName);
+        $('#api_desc').val(response.description);
+    });
+    $.get("Administration/GetApiScopes", { apiId: apiId }, function (response) {
+        console.log(response);
+        var html = '';
+        for (var i = 0; i < response.length; i++) {
+            html += `<tr>
+                                <td>`+ response[i].scopeName + `</td>
+                                <td>`+ response[i].scopeDescription + `</td>
+                                <td>
+                                    <a href="#" onclick="deleteApiScope('`+ apiId + `', '` + response[i].scopeName + `')">Delete</a>
+                                </td>
+                            </tr>`;
+        }
+        $('#api_allowedscopes').html(html);
+    });
+
+    $.get("Administration/GetApiNonAssignedScopes", { apiId: apiId }, function (response) {
+        console.log(response);
+        var html = '';
+        for (var i = 0; i < response.length; i++) {
+            html += `<option value="` + response[i].scopeName + `">` + response[i].scopeName + `</option>`;
+        }
+        $('#api_unappliedscope_list').html(html);
+    });
+}
+
 function loadClientDetails(clientId) {
     $('#selected-client').val(clientId);
+
     $('#infotab').hide();
+    $('#api_details').hide();
+    $('#scope_details').hide();
     $('#client_details').show();
+
     $('#client_grant').addClass('disabled');
     $.get("Administration/GetClient", { clientId:clientId }, function (response) {
         console.log(response);
@@ -121,7 +207,315 @@ function loadClientDetails(clientId) {
         $('#client_redirecturi').val(response.redirectUris);
         $('#client_postredirecturi').val(response.postLogoutRedirectUris);
         $('#client_cors_orgins').val(response.allowedCorsOrigins);
+
+        $('#code').removeClass();
+        $('#code').addClass('csharp');
+
+        switch (response.allowedGrantTypes) {
+            case "code":
+                var code = `
+//Install Packages
+//IdentityModel
+//Microsoft.AspNetCore.Authentication.OpenIdConnect
+//System.IdentityModel.Tokens.Jwt
+
+//Configure Startup.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllersWithViews();
+    JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+    //Add Support for OAuth 2.0 Code-Grant With Identity Server 4
+    services.AddAuthentication(opt => 
+    {
+        opt.DefaultScheme = "Cookies";
+        opt.DefaultChallengeScheme = "oidc";
+    })
+    .AddCookie("Cookies")
+    .AddOpenIdConnect("oidc", opt => 
+    {
+        opt.SignInScheme = "Cookies";
+        opt.Authority = "`+ window.location.origin +`";
+        opt.ClientId = "`+ response.clientId +`";
+        opt.ResponseType = "code";
+        opt.ClientSecret = "`+ response.clientSecret +`";
+        opt.UseTokenLifetime = true;
+        opt.SaveTokens = true;
     });
+}
+
+//Add Authentication and Authorization In Pipeline
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
+
+//To protect an endpoint and access auth info and to read all claims from Http Context
+[Authorize]
+public async Task<IActionResult> Privacy()
+{
+    var result = await HttpContext.AuthenticateAsync();
+    var accessToken = await HttpContext.GetTokenAsync("access_token");
+    var claims = result.Principal.Claims;
+}
+`;
+                $('#code').text(code);
+                hljs.highlightAll();
+                break;
+            case "client_credentials":
+                var code = `
+//Install Packages
+//IdentityModel
+//Microsoft.AspNetCore.Authentication.OpenIdConnect
+//System.IdentityModel.Tokens.Jwt
+
+//First get an access token
+public async Task<string> GetToken()
+{
+    var client = new HttpClient();
+    var disco = await client.GetDiscoveryDocumentAsync("`+ window.location.origin +`");
+    if (!disco.IsError)
+    {
+        var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+        {
+        Address = disco.TokenEndpoint,
+        ClientId = "`+ response.clientId +`",
+        ClientSecret = "`+ response.clientSecret +`",
+        Scope = "Api1"
+        });
+        if (tokenResponse.IsError)
+        {
+            Console.WriteLine(tokenResponse.Error);
+        }
+        var token = tokenResponse.AccessToken;
+        return token;
+    }
+}
+
+//Using the access token, Call the server
+public async Task CallAPI(string token) 
+{
+    var client = new RestClient("https://APIURL/WeatherForecast");
+    client.Timeout = -1;
+    var request = new RestRequest(Method.GET);
+    request.AddHeader("Authorization", $"Bearer {token}");
+    IRestResponse response = client.Execute(request);
+    Console.WriteLine(response.Content);
+}
+
+//ON API
+
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+    services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = "`+ window.location.origin +`";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false
+        };
+    });
+    services.AddAuthorization(options =>
+    {
+        options.AddPolicy("ApiScope", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("scope", "Api1");
+        });
+    });
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllers().RequireAuthorization("ApiScope");
+    });
+}
+`;
+                $('#code').text(code);
+                hljs.highlightAll();
+                break;
+            case "implicit":
+                $('#code').removeClass('csharp');
+                $('#code').addClass('html');
+                var code = `
+<!--Main Page-->
+
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8" />
+      <title></title>
+   </head>
+   <body>
+      <button id="login">Login</button>
+      <button id="api">Call API</button>
+      <button id="logout">Logout</button>
+      <pre id="results"></pre>
+      <script 
+         src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.11.5/oidc-client.min.js"
+         integrity="sha512-pGtU1n/6GJ8fu6bjYVGIOT9Dphaw5IWPwVlqkpvVgqBxFkvdNbytUh0H8AP15NYF777P4D3XEeA/uDWFCpSQ1g=="
+         crossorigin="anonymous"></script>
+      <script>
+         function log() {
+             document.getElementById('results').innerText = '';
+         
+             Array.prototype.forEach.call(arguments, function (msg) {
+                 if (msg instanceof Error) {
+                     msg = "Error: " + msg.message;
+                 }
+                 else if (typeof msg !== 'string') {
+                     msg = JSON.stringify(msg, null, 2);
+                 }
+                 document.getElementById('results').innerHTML += msg + '\r\n';
+             });
+         }
+         
+         document.getElementById("login").addEventListener("click", login, false);
+         document.getElementById("api").addEventListener("click", api, false);
+         document.getElementById("logout").addEventListener("click", logout, false);
+         
+         var config = {
+             authority: "`+ window.location.origin +`",
+             client_id: "`+ response.clientId + `",
+             redirect_uri: "`+ response.redirectUris +`",
+             response_type: "id_token token",
+             scope: "openid profile Api1",
+             post_logout_redirect_uri: "`+ response.postLogoutRedirectUris +`",
+         };
+         var mgr = new Oidc.UserManager(config);
+         
+         
+         mgr.getUser().then(function (user) {
+             if (user) {
+                 log("User logged in", user.profile);
+             }
+             else {
+                 log("User not logged in");
+             }
+         });
+         
+         function login() {
+             mgr.signinRedirect();
+         }         
+         
+         function api() {
+             mgr.getUser().then(function (user) {
+                 var url = "https://localhost:44365/WeatherForecast";
+         
+                 var xhr = new XMLHttpRequest();
+                 xhr.open("GET", url);
+                 xhr.onload = function () {
+                     log(xhr.status, JSON.parse(xhr.responseText));
+                 }
+                 xhr.setRequestHeader("Authorization", "Bearer " + user.access_token);
+                 xhr.send();
+             });
+         }
+         
+         function logout() {
+             mgr.signoutRedirect();
+         }
+         
+      </script>
+   </body>
+</html>
+
+<!--Callback Page-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.11.5/oidc-client.min.js"
+            integrity="sha512-pGtU1n/6GJ8fu6bjYVGIOT9Dphaw5IWPwVlqkpvVgqBxFkvdNbytUh0H8AP15NYF777P4D3XEeA/uDWFCpSQ1g=="
+            crossorigin="anonymous">
+    </script>
+    <script>
+        new Oidc.UserManager().signinRedirectCallback().then(function () {
+            window.location = "index.html";
+        }).catch(function (e) {
+            console.error(e);
+        });
+    </script>
+</body>
+</html>
+
+//On the API, Set a CORS Policy
+//Configure Startup.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();            
+    services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = "`+ window.location.origin +`";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false
+        };
+    });
+    services.AddAuthorization(options =>
+    {
+        options.AddPolicy("ApiScope", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("scope", "Api1");
+        });
+    });
+    services.AddCors(options =>
+    {
+        options.AddPolicy("default", policy =>
+        {
+            policy.WithOrigins("`+ response.allowedCorsOrigins +`")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+    });
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseCors("default");
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllers().RequireAuthorization("ApiScope");
+    });
+}
+`;
+                $('#code').text(code);
+                hljs.highlightAll();
+                break;
+            case "resource_owner":
+                var code = `
+// Request token
+var tokenClient = new TokenClient(disco.TokenEndpoint, "`+ response.clientId + `", "` + response.clientSecret +`");
+var tokenResponse = await tokenClient.RequestResourceOwnerPasswordAsync("alice", "password", "Api1");
+if (tokenResponse.IsError)
+{
+    Console.WriteLine(tokenResponse.Error);
+    return;
+}
+Console.WriteLine(tokenResponse.Json);
+Console.WriteLine("\n\n");`;
+                $('#code').text(code);
+                hljs.highlightAll();
+                break;
+        }
+
+    });
+
     $.get("Administration/GetClientScopes", { clientId: clientId }, function (response) {
         console.log(response);
         var html = '';
@@ -145,5 +539,58 @@ function loadClientDetails(clientId) {
         }
         $('#clients_unappliedscope_list').html(html);
     });
+
+
+
+}
+
+function saveClient() {
+    var clientId = $('#selected-client').val();
+    var data = {
+        "id": clientId,
+        "clientName": $('#client_name').val(),
+        "clientDescription": $('#client_desc').val(),
+        "clientId": $('#client_id').val(),
+        "clientSecret": $('#client_secret').val(),
+        "allowedGrantTypes": $('#client_grant').dropdown('get value'),
+        "redirectUris": $('#client_redirecturi').val(),
+        "postLogoutRedirectUris": $('#client_postredirecturi').val(),
+        "accessTokenLifetime": $('#client_accesstoken_life').val(),
+        "identityTokenLifetime": $('#client_identitytoken_life').val(),
+        "allowedScopes": null,
+        "isActive": true,
+        "maintananceMessage": $('#client_inactive_message').val()
+    };
+    debugger;
+    $.post('', data, function (response) {
+
+    });
+}
+
+function activateInactivateClient() {
+
+}
+
+function deleteClient() {
+
+}
+
+function saveApi() {
+
+}
+
+function activateInactivateApi() {
+
+}
+
+function deleteApi() {
+
+}
+
+function saveScope() {
+
+}
+
+function deleteScope() {
 
 }

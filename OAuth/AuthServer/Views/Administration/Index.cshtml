@@ -8,11 +8,15 @@
     <script src="~/js/semantic.js"></script>
     <link href="~/css/semantic.css" rel="stylesheet" />
     <script src="~/js/administration.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 </head>
 <body>
 
     <input type="hidden" id="selected-client" value="" />
-    <input type="hidden" id="id" value="" />
+    <input type="hidden" id="selected-api" value="" />
+    <input type="hidden" id="selected-scope" value="" />
 
     @{
         void RenderGrantType(string grandName)
@@ -63,11 +67,20 @@
         {
             if (scope.Split(".").Length > 1)
             {
-                <div class="header"><a class="ui label">@scope.Split(".")[0]</a>.@scope.Split(".")[1]</div>
+                <div class="header" onclick="loadScopeDetails('@scope')">
+                    <a class="ui label">
+                        @scope.Split(".")[0]
+                    </a>
+                    @scope.Split(".")[1]
+                </div>
             }
             else
             {
-                <div class="header"><a class="ui label">@scope.Split(".")[0]</a></div>
+                <div class="header" onclick="loadScopeDetails('@scope')">
+                    <a class="ui label">
+                        @scope.Split(".")[0]
+                    </a>
+                </div>
             }
         }
 
@@ -88,6 +101,25 @@
             </div>
             <div class="ui positive right labeled icon button" onclick="assignNewScopesToClient()">
                 Apply New Scopes
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui mini modal" id="api_assign_scopes_model">
+        <i class="close icon"></i>
+        <div class="header">
+            Available Scopes To Support
+        </div>
+        <div class="content">
+            <select class="ui fluid search dropdown" multiple="" id="api_unappliedscope_list"></select>
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Cancel
+            </div>
+            <div class="ui positive right labeled icon button" onclick="assignNewScopesToApi()">
+                Support Scopes
                 <i class="checkmark icon"></i>
             </div>
         </div>
@@ -134,10 +166,10 @@
                             <div class="content">
                                 <div class="content">
                                     <div class="header">
-                                        <a class="ui green label"> @api.Name </a> | @api.DisplayName
+                                        <a class="ui green label">@api.Name</a> | <a href="#" class="api-handle" data-id="@api.Id">@api.DisplayName</a>
                                     </div>
                                 </div>
-                                <div class="description">@api.Id</div>
+                                <div class="description">@api.Description</div>
                             </div>
                         </div>
                     }
@@ -183,9 +215,11 @@
 
             <h4>OAuth 2.0 Implementation Example</h4>
             <div class="ui raised segment">
-                <code>
-                    code will come here
-                </code>
+                <pre>
+                    <code class="csharp" id="code">
+                        [Select an entity to get ASP.NET Core Startup Config]
+                    </code>
+                </pre>
             </div>
 
         </div>
@@ -194,14 +228,109 @@
             <h4>Welcome To Identity Server Administration Panel</h4>
             <div class="ui segment">
                 <center>
-                    <img class="ui image" src="https://cdn2.iconfinder.com/data/icons/whcompare-isometric-web-hosting-servers/50/cloud-server-512.png" style=" width: 150px;"/>
+                    <img class="ui image" src="https://cdn2.iconfinder.com/data/icons/whcompare-isometric-web-hosting-servers/50/cloud-server-512.png" style=" width: 150px;" />
                     <div class="ui icon header">
-                        Administrate the server by opening a configuration from the left pane
+                        Administrate the server by opening a configuration
                     </div>
-                </center>                
+                </center>
             </div>
         </div>
 
+        <!-- SCOPE DETAILS -->
+        <div class="column" id="scope_details" style="display:none">
+            <h4>Details</h4>
+
+            <div class="ui segment">
+                <form class="ui form">
+                    <div class="ui raised segment">
+                        <h4 class="ui dividing header">Configuration Setup</h4>
+                        <div class="sixteen wide field">
+                            <label>Scope Name</label>
+                            <input type="text" id="scope_name" maxlength="50" placeholder="SpotifyMusic.Upload">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label>Scope Description</label>
+                            <input type="text" id="scope_desc" maxlength="50" placeholder="Allows upload permission on SpotifyMusic API">
+                        </div>
+                    </div>
+                </form>
+
+                <form class="ui form">
+                    <div class="fields">
+                        <div class="eight wide field">
+                            <button class="positive ui fluid button"  onclick="saveScope()">Save Scope</button>
+                        </div>
+                        <div class="eight wide field">
+                            <button class="negative ui fluid button"  onclick="deleteScope()">Delete Scope</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- API DETAILS -->
+        <div class="column" id="api_details" style="display:none">
+            <h4>Details</h4>
+
+            <div class="ui segment">
+                <form class="ui form">
+                    <div class="ui raised segment">
+                        <h4 class="ui dividing header">Configuration Setup</h4>
+                        <div class="sixteen wide field">
+                            <label>API Name</label>
+                            <input type="text" id="api_name" maxlength="50" placeholder="SpotifyMusic">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label>API Display Name</label>
+                            <input type="text" id="api_display_name" maxlength="50" placeholder="Spotify Music API BETA">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label>API Description</label>
+                            <input type="text" id="api_desc" maxlength="50" placeholder="BETA API to support streaming of music resources">
+                        </div>
+                    </div>
+                </form>
+
+                <div class="ui raised segment">
+                    <h4 class="ui dividing header">Supported Scopes</h4>
+                    <button class="ui primary button" onclick="openApiAssignScopesModel()">
+                        Support New Scope
+                    </button>
+                    <table class="ui basic table">
+                        <thead>
+                            <tr>
+                                <th>Scope Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="api_allowedscopes">
+                        </tbody>
+                    </table>
+                </div>
+
+                <form class="ui form">
+                    <div class="fields">
+                        <div class="six wide field">
+                            <button class="positive ui fluid button"  onclick="saveApi()">Save API</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="orange ui fluid button"  onclick="activateInactivateApi()">Suspend API</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="negative ui fluid button" onclick="deleteApi()">Delete API</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- CLIENT DETAILS -->
         <div class="column" id="client_details" style="display:none">
             <h4>Details</h4>
 
@@ -232,7 +361,7 @@
                             <label>Client Logo</label>
                             <div class="ui placeholder segment">
                                 <div class="ui icon header">
-                                    <img class="ui large centered image" src="/images/postman.png">
+                                    <img class="ui large centered image" src="https://localhost:5005/images/spotify.webp">
                                 </div>
                                 <div class="ui primary button">Browse Logo</div>
                             </div>
@@ -315,13 +444,13 @@
                 <form class="ui form">
                     <div class="fields">
                         <div class="six wide field">
-                            <button class="positive ui fluid button">Save Client</button>
+                            <button class="positive ui fluid button" onclick="saveClient()">Save Client</button>
                         </div>
                         <div class="six wide field">
-                            <button class="orange ui fluid button">Suspend Client</button>
+                            <button class="orange ui fluid button" onclick="activateInactivateClient()">Suspend Client</button>
                         </div>
                         <div class="six wide field">
-                            <button class="negative ui fluid button">Delete Client</button>
+                            <button class="negative ui fluid button" onclick="deleteClient()">Delete Client</button>
                         </div>
                     </div>
                 </form>

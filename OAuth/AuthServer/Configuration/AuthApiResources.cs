@@ -13,6 +13,7 @@ namespace AuthServer.Configuration
 
         public string Name { get; set; }
         public string DisplayName { get; set; }
+        public string Description { get; set; }
         public bool IsActive { get; set; }
         public string SupportedScopes { get; set; }
     }
