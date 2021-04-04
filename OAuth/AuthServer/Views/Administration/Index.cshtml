@@ -1,0 +1,334 @@
+﻿@model AuthServer.Models.AdministrationVM;
+@{
+    Layout = null;
+}
+<html>
+<head>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/semantic.js"></script>
+    <link href="~/css/semantic.css" rel="stylesheet" />
+    <script src="~/js/administration.js"></script>
+</head>
+<body>
+
+    <input type="hidden" id="selected-client" value="" />
+    <input type="hidden" id="id" value="" />
+
+    @{
+        void RenderGrantType(string grandName)
+        {
+            switch (grandName)
+            {
+                case "code":
+                    <div class="ui green horizontal label">authorization code</div>
+                    break;
+                case "client_credentials":
+                    <div class="ui green horizontal label">client credentials</div>
+                    break;
+                case "implicit":
+                    <div class="ui orange horizontal label">implicit</div>
+                    break;
+                case "resource_owner":
+                    <div class="ui red horizontal label">resource owner</div>
+                    break;
+                default:
+                    <div class="ui horizontal label">unsupported</div>
+                    break;
+            }
+        }
+
+        void RenderFlowIcon(string grandName)
+        {
+            switch (grandName)
+            {
+                case "code":
+                    <img class="ui avatar image incircle" src="/images/chrome.png">
+                    break;
+                case "client_credentials":
+                    <img class="ui avatar image incircle" src="/images/server.png">
+                    break;
+                case "implicit":
+                    <img class="ui avatar image incircle" src="/images/spa.png">
+                    break;
+                case "resource_owner":
+                    <img class="ui avatar image incircle" src="/images/postman.png">
+                    break;
+                default:
+                    <div class="ui horizontal label">unsupported</div>
+                    break;
+            }
+        }
+
+        void RenderScopes(string scope)
+        {
+            if (scope.Split(".").Length > 1)
+            {
+                <div class="header"><a class="ui label">@scope.Split(".")[0]</a>.@scope.Split(".")[1]</div>
+            }
+            else
+            {
+                <div class="header"><a class="ui label">@scope.Split(".")[0]</a></div>
+            }
+        }
+
+    }
+
+
+    <div class="ui mini modal" id="client_assign_scopes_model">
+        <i class="close icon"></i>
+        <div class="header">
+            Available Scopes To Assign
+        </div>
+        <div class="content">
+            <select class="ui fluid search dropdown" multiple="" id="clients_unappliedscope_list"></select>
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Cancel
+            </div>
+            <div class="ui positive right labeled icon button" onclick="assignNewScopesToClient()">
+                Apply New Scopes
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ui two column doubling stackable grid">
+
+        <div class="column padded">
+            <h4>OAuth 2.0 Clients</h4>
+            <button class="ui primary button">
+                Add New Client
+            </button>
+            <div class="ui raised segment">
+                <div class="ui very relaxed list">
+                    @foreach (var client in Model.AuthClient)
+                    {
+                        <div class="item">
+                            <img class="ui avatar image" src="/images/spotify.webp">
+                            @{ RenderFlowIcon(client.AllowedGrantTypes); }
+                            <div class="content">
+                                <div class="content">
+                                    <div class="header"><a class="ui label">@client.ClientId</a> | <a href="#" class="client-handle" data-id="@client.Id">@client.ClientName</a> | @{ RenderGrantType(client.AllowedGrantTypes); }</div>
+                                </div>
+                                <div class="description">@client.ClientDescription</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <h4>OAuth 2.0 API Resources</h4>
+            <button class="ui primary button">
+                Add New API
+            </button>
+            <div class="ui raised segment">
+                <div class="ui very relaxed list">
+                    @foreach (var api in Model.AuthApiResources)
+                    {
+                        <div class="item">
+                            <img class="ui mini image" src="/images/api.png">
+                            <div class="content">
+                                <div class="content">
+                                    <div class="header">
+                                        <a class="ui green label"> @api.Name </a> | @api.DisplayName
+                                    </div>
+                                </div>
+                                <div class="description">@api.Id</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <h4>OAuth 2.0 All Scopes</h4>
+            <button class="ui primary button">
+                Add New Scope
+            </button>
+            <div class="ui raised segment">
+                @{
+                    var distinctScopeHeader = Model.AuthScopes.Select(x => x.ScopeName.Split(".")[0]).Distinct();
+                    foreach (var distinct in distinctScopeHeader)
+                    {
+                        var scopes = Model.AuthScopes.Where(x => x.ScopeName.StartsWith(distinct));
+                        <div class="ui styled fluid accordion">
+                            <div class="title">
+                                <i class="dropdown icon"></i>
+                                @distinct
+                            </div>
+                            <div class="content">
+                                <div class="transition hidden">
+                                    <div class="ui very relaxed list">
+                                        @foreach (var scope in scopes)
+                                        {
+                                            <div class="item">
+                                                <img class="ui mini image" src="/images/scope.png">
+                                                <div class="content">
+                                                    @{RenderScopes(scope.ScopeName);}
+                                                </div>
+                                                <div class="description scope-desc">@scope.ScopeDescription</div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+
+            <h4>OAuth 2.0 Implementation Example</h4>
+            <div class="ui raised segment">
+                <code>
+                    code will come here
+                </code>
+            </div>
+
+        </div>
+
+        <div class="column" id="infotab">
+            <h4>Welcome To Identity Server Administration Panel</h4>
+            <div class="ui segment">
+                <center>
+                    <img class="ui image" src="https://cdn2.iconfinder.com/data/icons/whcompare-isometric-web-hosting-servers/50/cloud-server-512.png" style=" width: 150px;"/>
+                    <div class="ui icon header">
+                        Administrate the server by opening a configuration from the left pane
+                    </div>
+                </center>                
+            </div>
+        </div>
+
+        <div class="column" id="client_details" style="display:none">
+            <h4>Details</h4>
+
+            <div class="ui segment">
+                <form class="ui form">
+
+                    <div class="ui raised segment">
+                        <h4 class="ui dividing header">Authentication Flow</h4>
+                        <div class="field">
+                            <label>Grant</label>
+                            <div class="ui selection dropdown" id="client_grant">
+                                <input type="hidden" name="gender">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Select a grand</div>
+                                <div class="menu">
+                                    <div class="item" data-value="code">Authorization Code Grant</div>
+                                    <div class="item" data-value="client_credentials">Client Credentials Grant</div>
+                                    <div class="item" data-value="implicit">Implicit Grant</div>
+                                    <div class="item" data-value="resource_owner">Resource Owner Password Grant</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui raised segment">
+                        <h4 class="ui dividing header">Meta</h4>
+                        <div class="field">
+                            <label>Client Logo</label>
+                            <div class="ui placeholder segment">
+                                <div class="ui icon header">
+                                    <img class="ui large centered image" src="/images/postman.png">
+                                </div>
+                                <div class="ui primary button">Browse Logo</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui raised segment">
+                        <h4 class="ui dividing header">Configuration Setup</h4>
+                        <div class="sixteen wide field">
+                            <label>Client Name</label>
+                            <input type="text" id="client_name" maxlength="50" placeholder="Spotify MVC BETA">
+                        </div>
+                        <div class="field">
+                            <div class="ui checkbox">
+                                <input type="checkbox" tabindex="0" class="hidden">
+                                <label>Mark As BETA/Test Build</label>
+                            </div>
+                        </div>
+                        <div class="sixteen wide field">
+                            <label>Client Description</label>
+                            <input type="text" id="client_desc" maxlength="50" placeholder="BETA Build for Spotify MVC with GDR Support">
+                        </div>
+                        <div class="fields">
+                            <div class="eight wide field">
+                                <label>Client Id</label>
+                                <input type="text" id="client_id" maxlength="50" placeholder="mvc-client">
+                            </div>
+                            <div class="eight wide field">
+                                <label>Client Secret</label>
+                                <input type="text" id="client_secret" maxlength="50" placeholder="MVCClientSecret">
+                            </div>
+                        </div>
+                        <div class="fields">
+                            <div class="eight wide field">
+                                <label>Inactive Message</label>
+                                <input type="text" id="client_inactive_message" maxlength="50" placeholder="The Server Is Busy">
+                            </div>
+                            <div class="four wide field">
+                                <label>Identity Token Life</label>
+                                <input type="text" id="client_identitytoken_life" maxlength="50" placeholder="1000">
+                            </div>
+                            <div class="four wide field">
+                                <label>Access Token Life</label>
+                                <input type="text" id="client_accesstoken_life" maxlength="50" placeholder="1000">
+                            </div>
+                        </div>
+                        <div class="sixteen wide field">
+                            <label>Redirect URI</label>
+                            <input type="text" id="client_redirecturi" maxlength="50" placeholder="https://localhost:44326/signin-oidc">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label>Post Redirect URI</label>
+                            <input type="text" id="client_postredirecturi" maxlength="50" placeholder="https://localhost:44326/signout-callback-oidc">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label>CORS Allowed Orgins (Seperated By comma)</label>
+                            <input type="text" id="client_cors_orgins" placeholder="https://localhost:44334">
+                        </div>
+                    </div>
+                </form>
+
+                <div class="ui raised segment">
+                    <h4 class="ui dividing header">Allowed Scopes</h4>
+                    <button class="ui primary button" onclick="openClientAssignScopesModel()">
+                        Assign New Scope
+                    </button>
+                    <table class="ui basic table">
+                        <thead>
+                            <tr>
+                                <th>Scope Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clients_allowedscopes">
+                        </tbody>
+                    </table>
+                </div>
+
+                <form class="ui form">
+                    <div class="fields">
+                        <div class="six wide field">
+                            <button class="positive ui fluid button">Save Client</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="orange ui fluid button">Suspend Client</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="negative ui fluid button">Delete Client</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

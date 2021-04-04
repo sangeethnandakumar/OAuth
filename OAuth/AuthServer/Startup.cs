@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using Westwind.AspNetCore.LiveReload;
 
 namespace AuthServer
 {
@@ -64,7 +65,8 @@ namespace AuthServer
                 .AddDeveloperSigningCredential();
             }
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddLiveReload();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -73,6 +75,8 @@ namespace AuthServer
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseLiveReload();
 
             app.UseStaticFiles();
             app.UseRouting();
