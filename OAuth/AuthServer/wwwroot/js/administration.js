@@ -20,6 +20,18 @@ function init() {
     $('#client_grant').on('change', function () {
         adjustFormWithGrant($(this).dropdown('get value'));
     });
+
+    $('input').bind('input propertychange', function () {
+        var str = $(this).val();
+        var patt = new RegExp($(this).attr('pattern'));
+        var res = patt.test(str);
+        if (!res) {
+            $(this).parent().addClass('error');
+        }
+        else {
+            $(this).parent().removeClass('error');
+        }
+    });
 }
 
 function openClientAssignScopesModel() {
@@ -194,6 +206,7 @@ function loadClientDetails(clientId) {
     $('#client_details').show();
 
     $('#client_grant').addClass('disabled');
+
     $.get("Administration/GetClient", { clientId:clientId }, function (response) {
         console.log(response);
         adjustFormWithGrant(response.allowedGrantTypes);        
@@ -544,6 +557,22 @@ Console.WriteLine("\n\n");`;
 
 }
 
+
+function getScopesCsv(tableid) {
+    var cols = $('#' + tableid + ' tr td:nth-child(1)');
+    var csv = "";
+    for (var i = 0; i < cols.length; i++) {
+        var data = $('#' + tableid + ' tr td:nth-child(1):eq(' + i + ')').text();
+        if (i < cols.length - 1) {
+            csv += data + ',';
+        }
+        else {
+            csv += data
+        }
+    }
+    return csv;
+}
+
 function saveClient() {
     var clientId = $('#selected-client').val();
     var data = {
@@ -557,13 +586,12 @@ function saveClient() {
         "postLogoutRedirectUris": $('#client_postredirecturi').val(),
         "accessTokenLifetime": $('#client_accesstoken_life').val(),
         "identityTokenLifetime": $('#client_identitytoken_life').val(),
-        "allowedScopes": null,
+        "allowedScopes": getScopesCsv('clients_allowedscopes'),
         "isActive": true,
         "maintananceMessage": $('#client_inactive_message').val()
     };
-    debugger;
-    $.post('', data, function (response) {
-
+    $.post('Administration/SaveClient', { client: data }, function (response) {
+        location.reload();
     });
 }
 
@@ -576,7 +604,18 @@ function deleteClient() {
 }
 
 function saveApi() {
-
+    var apiId = $('#selected-api').val();
+    var data = {
+        "id": apiId,
+        "Name": $('#api_name').val(),
+        "DisplayName": $('#api_display_name').val(),        
+        "Description": $('#api_desc').val(),        
+        "IsActive": true,
+        "SupportedScopes": getScopesCsv('api_allowedscopes')       
+    };
+    $.post('Administration/SaveApi', { api: data }, function (response) {
+        location.reload();
+    });
 }
 
 function activateInactivateApi() {

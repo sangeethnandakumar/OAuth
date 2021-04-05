@@ -236,6 +236,7 @@
             </div>
         </div>
 
+
         <!-- SCOPE DETAILS -->
         <div class="column" id="scope_details" style="display:none">
             <h4>Details</h4>
@@ -244,6 +245,19 @@
                 <form class="ui form">
                     <div class="ui raised segment">
                         <h4 class="ui dividing header">Configuration Setup</h4>
+                        <div class="field">
+                            <label>Associate Scope with API</label>
+                            <div class="ui selection dropdown" id="scope_api_association">
+                                <input type="hidden" name="gender">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Select a grand</div>
+                                <div class="menu">
+                                    <div class="item" data-value="">No Association</div>
+                                    <div class="item" data-value="1234">Api1</div>
+                                    <div class="item" data-value="12345">Api2</div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="sixteen wide field">
                             <label>Scope Name</label>
                             <input type="text" id="scope_name" maxlength="50" placeholder="SpotifyMusic.Upload">
@@ -334,6 +348,27 @@
         <div class="column" id="client_details" style="display:none">
             <h4>Details</h4>
 
+            <div class="ui success message">
+                <div class="header">
+                    Note: No Strict Validations
+                </div>
+                <ul class="list">
+                    <li>Each fields will show hints about an optimal recommended value. If it's not satisfied it'll highlight the field in red color.</li>
+                    <li>You can still save a client without satisying to these validations.</li>
+                    <li>It might have unexpected errors.</li>
+                </ul>
+            </div>
+
+            <div class="ui negative message">
+                <i class="close icon"></i>
+                <div class="header">
+                    AuthFlow/Grant is locked
+                </div>
+                <p>
+                    If you want to change the grant of this client, Delete the client and create new one
+                </p>
+            </div>
+
             <div class="ui segment">
                 <form class="ui form">
 
@@ -355,6 +390,7 @@
                         </div>
                     </div>
 
+
                     <div class="ui raised segment">
                         <h4 class="ui dividing header">Meta</h4>
                         <div class="field">
@@ -368,11 +404,13 @@
                         </div>
                     </div>
 
-                    <div class="ui raised segment">
+                    <div class="ui raised secondary segment">
                         <h4 class="ui dividing header">Configuration Setup</h4>
-                        <div class="sixteen wide field">
+
+                        <div class="sixteen wide input field">
                             <label>Client Name</label>
-                            <input type="text" id="client_name" maxlength="50" placeholder="Spotify MVC BETA">
+                            <input type="text" id="client_name" placeholder="Spotify MVC BETA" pattern="^[A-Za-z0-9\.\-\s]{3,30}$">
+                            <small class="info-msg">[3-30 chars]</small>
                         </div>
                         <div class="field">
                             <div class="ui checkbox">
@@ -380,45 +418,54 @@
                                 <label>Mark As BETA/Test Build</label>
                             </div>
                         </div>
-                        <div class="sixteen wide field">
+                        <div class="sixteen wide input field">
                             <label>Client Description</label>
-                            <input type="text" id="client_desc" maxlength="50" placeholder="BETA Build for Spotify MVC with GDR Support">
+                            <input type="text" id="client_desc" placeholder="BETA Build for Spotify MVC with GDR Support" pattern="^[A-Za-z0-9\.\-\s]{3,350}$">
+                            <small class="info-msg">[3-350 chars]</small>
                         </div>
                         <div class="fields">
-                            <div class="eight wide field">
+                            <div class="eight wide input field">
                                 <label>Client Id</label>
-                                <input type="text" id="client_id" maxlength="50" placeholder="mvc-client">
+                                <input type="text" id="client_id" placeholder="mvc-client" pattern="^[a-z0-9-]{3,18}$">
+                                <small class="info-msg">[Lowercase | Hyphens/Digits | 3-18 chars]</small>
                             </div>
-                            <div class="eight wide field">
+                            <div class="eight wide input field">
                                 <label>Client Secret</label>
-                                <input type="text" id="client_secret" maxlength="50" placeholder="MVCClientSecret">
+                                <input type="text" id="client_secret" placeholder="MVCClientSecret" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)">
+                                <small class="info-msg">[Min 1 lowercase | Min 1 Uppercase | Min 1 Digit | Min 1 Wildchar]</small>
                             </div>
                         </div>
                         <div class="fields">
-                            <div class="eight wide field">
+                            <div class="eight wide input field">
                                 <label>Inactive Message</label>
-                                <input type="text" id="client_inactive_message" maxlength="50" placeholder="The Server Is Busy">
+                                <input type="text" id="client_inactive_message" placeholder="The Server Is Busy" pattern="^[A-Za-z0-9\s]{3,350}$">
+                                <small class="info-msg">[3-350 chars]</small>
                             </div>
-                            <div class="four wide field">
+                            <div class="four wide input field">
                                 <label>Identity Token Life</label>
-                                <input type="text" id="client_identitytoken_life" maxlength="50" placeholder="1000">
+                                <input type="number" id="client_identitytoken_life" placeholder="1000" min="5" max="604800">
+                                <small class="info-msg">[In Sec | Min: 5sec | Max: 7days]</small>
                             </div>
-                            <div class="four wide field">
+                            <div class="four wide input field">
                                 <label>Access Token Life</label>
-                                <input type="text" id="client_accesstoken_life" maxlength="50" placeholder="1000">
+                                <input type="number" id="client_accesstoken_life" placeholder="1000" min="5" max="604800">
+                                <small class="info-msg">[In Sec | Min: 5sec | Max: 7days]</small>
                             </div>
                         </div>
-                        <div class="sixteen wide field">
+                        <div class="sixteen wide input field">
                             <label>Redirect URI</label>
-                            <input type="text" id="client_redirecturi" maxlength="50" placeholder="https://localhost:44326/signin-oidc">
+                            <input type="text" id="client_redirecturi" placeholder="https://localhost:44326/signin-oidc" pattern="(?<!\S)https:\/\/(?:\S+(?::\S*)?@@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::[0-9]*)?(?:/[^\s]*)?(?!\S)$">
+                            <small class="info-msg">[Should be https]</small>
                         </div>
-                        <div class="sixteen wide field">
+                        <div class="sixteen wide input field">
                             <label>Post Redirect URI</label>
-                            <input type="text" id="client_postredirecturi" maxlength="50" placeholder="https://localhost:44326/signout-callback-oidc">
+                            <input type="text" id="client_postredirecturi" placeholder="https://localhost:44326/signout-callback-oidc" pattern="(?<!\S)https:\/\/(?:\S+(?::\S*)?@@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::[0-9]*)?(?:/[^\s]*)?(?!\S)$">
+                            <small class="info-msg">[Should be https]</small>
                         </div>
-                        <div class="sixteen wide field">
+                        <div class="sixteen wide input field">
                             <label>CORS Allowed Orgins (Seperated By comma)</label>
                             <input type="text" id="client_cors_orgins" placeholder="https://localhost:44334">
+                            <small class="info-msg">[Should be https | Should be orgins]</small>
                         </div>
                     </div>
                 </form>

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace AuthServer.Configuration
 {
+    [Table("AuthApiResources")]
     public class AuthApiResources
     {
         [Key]
