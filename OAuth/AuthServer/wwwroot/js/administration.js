@@ -139,8 +139,8 @@ function deleteClientScope(clientId, scopeName) {
     });
 }
 
-function loadScopeDetails(scopename) {
-    $('#selected-scope').val(scopename);
+function loadScopeDetails(scopeId) {
+    $('#selected-scope').val(scopeId);
 
     $('#infotab').hide();
     $('#client_details').hide();
@@ -148,7 +148,7 @@ function loadScopeDetails(scopename) {
     $('#scope_details').show();
 
 
-    $.get("Administration/GetScope", { scopename: scopename }, function (response) {
+    $.get("Administration/GetScope", { scopeId: scopeId }, function (response) {
         console.log(response);
         $('#scope_name').val(response.scopeName);
         $('#scope_desc').val(response.scopeDescription);
@@ -627,7 +627,15 @@ function deleteApi() {
 }
 
 function saveScope() {
-
+    var scopeId = $('#selected-scope').val();
+    var data = {
+        "Id": scopeId,
+        "ScopeName": $('#scope_name').val(),
+        "ScopeDescription": $('#scope_desc').val()
+    };
+    $.post('Administration/SaveScope', { scope: data }, function (response) {
+        location.reload();
+    });
 }
 
 function deleteScope() {

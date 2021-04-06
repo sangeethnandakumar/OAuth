@@ -63,20 +63,20 @@
             }
         }
 
-        void RenderScopes(string scope)
+        void RenderScopes(string scope, string scopeId)
         {
             if (scope.Split(".").Length > 1)
             {
-                <div class="header" onclick="loadScopeDetails('@scope')">
+                <div class="header" onclick="loadScopeDetails('@scopeId')">
                     <a class="ui label">
                         @scope.Split(".")[0]
                     </a>
-                    @scope.Split(".")[1]
+                    .@scope.Split(".")[1]
                 </div>
             }
             else
             {
-                <div class="header" onclick="loadScopeDetails('@scope')">
+                <div class="header" onclick="loadScopeDetails('@scopeId')">
                     <a class="ui label">
                         @scope.Split(".")[0]
                     </a>
@@ -85,7 +85,6 @@
         }
 
     }
-
 
     <div class="ui mini modal" id="client_assign_scopes_model">
         <i class="close icon"></i>
@@ -124,9 +123,6 @@
             </div>
         </div>
     </div>
-
-
-
 
     <div class="ui two column doubling stackable grid">
 
@@ -199,7 +195,7 @@
                                             <div class="item">
                                                 <img class="ui mini image" src="/images/scope.png">
                                                 <div class="content">
-                                                    @{RenderScopes(scope.ScopeName);}
+                                                    @{RenderScopes(scope.ScopeName, scope.Id.ToString());}
                                                 </div>
                                                 <div class="description scope-desc">@scope.ScopeDescription</div>
                                             </div>
@@ -212,16 +208,14 @@
                 }
             </div>
 
-
             <h4>OAuth 2.0 Implementation Example</h4>
             <div class="ui raised segment">
                 <pre>
-                    <code class="csharp" id="code">
+                <code class="csharp" id="code">
                         [Select an entity to get ASP.NET Core Startup Config]
                     </code>
                 </pre>
             </div>
-
         </div>
 
         <div class="column" id="infotab">
@@ -235,7 +229,6 @@
                 </center>
             </div>
         </div>
-
 
         <!-- SCOPE DETAILS -->
         <div class="column" id="scope_details" style="display:none">
@@ -272,16 +265,14 @@
                 <form class="ui form">
                     <div class="fields">
                         <div class="eight wide field">
-                            <button class="positive ui fluid button"  onclick="saveScope()">Save Scope</button>
+                            <button class="positive ui fluid button" onclick="saveScope()">Save Scope</button>
                         </div>
                         <div class="eight wide field">
-                            <button class="negative ui fluid button"  onclick="deleteScope()">Delete Scope</button>
+                            <button class="negative ui fluid button" onclick="deleteScope()">Delete Scope</button>
                         </div>
                     </div>
                 </form>
-
             </div>
-
         </div>
 
         <!-- API DETAILS -->
@@ -294,15 +285,18 @@
                         <h4 class="ui dividing header">Configuration Setup</h4>
                         <div class="sixteen wide field">
                             <label>API Name</label>
-                            <input type="text" id="api_name" maxlength="50" placeholder="SpotifyMusic">
+                            <input type="text" id="api_name" maxlength="50" placeholder="api-spotify" pattern="^[a-z0-9-]{3,18}$">
+                            <small class="info-msg">[Lowercase | Hyphens/Digits | 3-18 chars]</small>
                         </div>
                         <div class="sixteen wide field">
                             <label>API Display Name</label>
-                            <input type="text" id="api_display_name" maxlength="50" placeholder="Spotify Music API BETA">
+                            <input type="text" id="api_display_name" maxlength="50" placeholder="Spotify Music API (Production)" pattern="^[A-Za-z0-9\.\-\s]{3,30}$">
+                            <small class="info-msg">[3-30 chars]</small>
                         </div>
                         <div class="sixteen wide field">
                             <label>API Description</label>
-                            <input type="text" id="api_desc" maxlength="50" placeholder="BETA API to support streaming of music resources">
+                            <input type="text" id="api_desc" maxlength="50" placeholder="BETA API to support streaming of music resources" pattern="^[A-Za-z0-9\.\-\s]{3,350}$">
+                            <small class="info-msg">[3-350 chars]</small>
                         </div>
                     </div>
                 </form>
@@ -328,21 +322,18 @@
                 <form class="ui form">
                     <div class="fields">
                         <div class="six wide field">
-                            <button class="positive ui fluid button"  onclick="saveApi()">Save API</button>
+                            <button class="positive ui fluid button" onclick="saveApi()">Save API</button>
                         </div>
                         <div class="six wide field">
-                            <button class="orange ui fluid button"  onclick="activateInactivateApi()">Suspend API</button>
+                            <button class="orange ui fluid button" onclick="activateInactivateApi()">Suspend API</button>
                         </div>
                         <div class="six wide field">
                             <button class="negative ui fluid button" onclick="deleteApi()">Delete API</button>
                         </div>
                     </div>
                 </form>
-
             </div>
-
         </div>
-
 
         <!-- CLIENT DETAILS -->
         <div class="column" id="client_details" style="display:none">
@@ -389,7 +380,6 @@
                             </div>
                         </div>
                     </div>
-
 
                     <div class="ui raised segment">
                         <h4 class="ui dividing header">Meta</h4>
@@ -501,9 +491,7 @@
                         </div>
                     </div>
                 </form>
-
             </div>
-
         </div>
     </div>
 </body>
