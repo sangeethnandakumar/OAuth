@@ -635,7 +635,10 @@ function activateInactivateClient() {
 }
 
 function deleteClient() {
-
+    var clientId = $('#selected-client').val();
+    $.get('Administration/DeleteClient', { clientId: clientId }, function (response) {
+        location.reload();
+    });
 }
 
 function saveApi() {
@@ -661,7 +664,10 @@ function activateInactivateApi() {
 }
 
 function deleteApi() {
-
+    var apiId = $('#selected-api').val();
+    $.get('Administration/DeleteApi', { apiId: apiId }, function (response) {
+        location.reload();
+    });
 }
 
 function saveScope() {
@@ -677,7 +683,10 @@ function saveScope() {
 }
 
 function deleteScope() {
-
+    var scopeId = $('#selected-scope').val();
+    $.get('Administration/DeleteScope', { scopeId: scopeId }, function (response) {
+        location.reload();
+    });
 }
 
 

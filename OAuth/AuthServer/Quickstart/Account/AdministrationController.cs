@@ -17,8 +17,8 @@ namespace IdentityServerHost.Quickstart.UI
         public async Task<IActionResult> Index()
         {
             var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
-            var authClients = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients ORDER BY AllowedGrantTypes", connectionString).ToList();
-            var authApiResources = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources ORDER BY Name", connectionString).ToList();
+            var authClients = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients ORDER BY IsActive DESC, ClientName", connectionString).ToList();
+            var authApiResources = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources ORDER BY IsActive DESC, Name", connectionString).ToList();
             var authScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes ORDER BY ScopeName", connectionString).ToList();
             var vm = new AdministrationVM
             {
@@ -233,36 +233,45 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("EnableDisableClient")]
         public async Task<IActionResult> EnableDisableClient(Guid clientId)
         {
-            return Ok();
+            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+            SqlHelper.Query<string>($"UPDATE AuthClients SET IsActive=IsActive^1 WHERE Id='{clientId}'", connectionString).FirstOrDefault();
+            return Ok(true);
         }
 
         [HttpGet]
         [Route("EnableDisableApi")]
         public async Task<IActionResult> EnableDisableApi(Guid apiId)
         {
-            return Ok();
+            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+            SqlHelper.Query<string>($"UPDATE AuthApiResources SET IsActive=IsActive^1 WHERE Id='{apiId}'", connectionString).FirstOrDefault();
+            return Ok(true);
         }
-
 
         [HttpGet]
         [Route("DeleteClient")]
-        public async Task<IActionResult> DeleteClient(string clientId)
+        public async Task<IActionResult> DeleteClient(Guid clientId)
         {
-            return Ok();
+            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+            SqlHelper.Query<string>($"DELETE FROM AuthClients WHERE Id='{clientId}'", connectionString).FirstOrDefault();
+            return Ok(true);
         }
 
         [HttpGet]
         [Route("DeleteApi")]
-        public async Task<IActionResult> DeleteApi(string apiId)
+        public async Task<IActionResult> DeleteApi(Guid apiId)
         {
-            return Ok();
+            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+            SqlHelper.Query<string>($"DELETE FROM AuthApiResources WHERE Id='{apiId}'", connectionString).FirstOrDefault();
+            return Ok(true);
         }
 
         [HttpGet]
         [Route("DeleteScope")]
-        public async Task<IActionResult> DeleteScope(string scopeName)
+        public async Task<IActionResult> DeleteScope(Guid scopeId)
         {
-            return Ok();
+            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+            SqlHelper.Query<string>($"DELETE FROM AuthScopes WHERE Id='{scopeId}'", connectionString).FirstOrDefault();
+            return Ok(true);
         }
     }
 }

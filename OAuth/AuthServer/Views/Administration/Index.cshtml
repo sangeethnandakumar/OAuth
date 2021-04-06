@@ -19,6 +19,9 @@
     <input type="hidden" id="selected-scope" value="" />
 
     @{
+        bool isSuspendedClientsDividerDrawn = false;
+        bool isSuspendedApiDividerDrawn = false;
+
         void RenderGrantType(string grandName)
         {
             switch (grandName)
@@ -137,36 +140,43 @@
                     {
                         @foreach (var client in Model.AuthClient)
                         {
-                    <div class="item">
-                        <img class="ui mini image" src="@client.Logo">
-                        @{ RenderFlowIcon(client.AllowedGrantTypes); }
-                        <div class="content">
-                            <div class="content">
-                                <div class="header"><a class="ui label">@client.ClientId</a> | <a href="#" class="client-handle" data-id="@client.Id">@client.ClientName</a> | @{ RenderGrantType(client.AllowedGrantTypes); }</div>
-                            </div>
-                            <div class="description">@client.ClientDescription</div>
-                            <div class="description">
-                                @if (client.IsActive)
-                                {
-                                    <div class="description" style="margin-top: 10px;">
-                                        <a class="ui green empty circular label"></a>
-                                        <a class="ui basic label">ACTIVE</a>
+                            @if (!client.IsActive && !isSuspendedClientsDividerDrawn)
+                            {
+                                <div class="ui horizontal divider">
+                                    Suspended Clients
+                                </div>
+                                isSuspendedClientsDividerDrawn = true;
+                            }
+                            <div class="item">
+                                <img class="ui mini image" src="@client.Logo">
+                                @{ RenderFlowIcon(client.AllowedGrantTypes); }
+                                <div class="content">
+                                    <div class="content">
+                                        <div class="header"><a class="ui label">@client.ClientId</a> | <a href="#" class="client-handle" data-id="@client.Id">@client.ClientName</a> | @{ RenderGrantType(client.AllowedGrantTypes); }</div>
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="description" style="margin-top: 10px;">
-                                        <a class="ui red empty circular label"></a>
-                                        <a class="ui basic label">SUSPENDED</a>
+                                    <div class="description">@client.ClientDescription</div>
+                                    <div class="description">
+                                        @if (client.IsActive)
+                                        {
+                                            <div class="description" style="margin-top: 10px;">
+                                                <a class="ui green empty circular label"></a>
+                                                <a class="ui basic label">ACTIVE</a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="description" style="margin-top: 10px;">
+                                                <a class="ui red empty circular label"></a>
+                                                <a class="ui basic label">SUSPENDED</a>
+                                            </div>
+                                        }
                                     </div>
+                                </div>
+                                @if (client.IsBeta)
+                                {
+                                    <img class="ui image" src="/images/dev.png" style="width: 40px;float: right;">
                                 }
                             </div>
-                        </div>
-                        @if (client.IsBeta)
-                        {
-                            <img class="ui image" src="/images/dev.png" style="width: 40px;float: right;">
-                        }
-                    </div>
                         }
                     }
                     else
@@ -189,6 +199,13 @@
                     {
                         @foreach (var api in Model.AuthApiResources)
                         {
+                            @if (!api.IsActive && !isSuspendedApiDividerDrawn)
+                            {
+                                <div class="ui horizontal divider">
+                                    Suspended APIs
+                                </div>
+                                isSuspendedApiDividerDrawn = true;
+                            }
                             <div class="item">
                                 <img class="ui mini image" src="/images/api.png">
                                 <div class="content">
@@ -301,6 +318,18 @@
             <h4>Details</h4>
 
             <div class="ui segment">
+
+                <form class="ui form">
+                    <div class="fields">
+                        <div class="eight wide field">
+                            <button class="positive ui fluid button" onclick="saveScope()">Save Scope</button>
+                        </div>
+                        <div class="eight wide field">
+                            <button class="negative ui fluid button" onclick="deleteScope()">Delete Scope</button>
+                        </div>
+                    </div>
+                </form>
+
                 <form class="ui form">
                     <div class="ui raised segment">
                         <h4 class="ui dividing header">Configuration Setup</h4>
@@ -342,6 +371,7 @@
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
 
@@ -350,6 +380,21 @@
             <h4>Details</h4>
 
             <div class="ui segment">
+
+                <form class="ui form">
+                    <div class="fields">
+                        <div class="six wide field">
+                            <button class="positive ui fluid button" onclick="saveApi()">Save API</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="ui fluid button" onclick="activateInactivateApi()">Activate/Suspend API</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="negative ui fluid button" onclick="deleteApi()">Delete API</button>
+                        </div>
+                    </div>
+                </form>
+
                 <form class="ui form">
                     <div class="ui raised segment">
                         <h4 class="ui dividing header">Configuration Setup</h4>
@@ -406,6 +451,7 @@
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
 
@@ -425,6 +471,21 @@
             </div>
 
             <div class="ui segment">
+
+
+                <form class="ui form">
+                    <div class="fields">
+                        <div class="six wide field">
+                            <button class="positive ui fluid button" onclick="saveClient()">Save Client</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="ui fluid button" onclick="activateInactivateClient()">Activate/Suspend Client</button>
+                        </div>
+                        <div class="six wide field">
+                            <button class="negative ui fluid button" onclick="deleteClient()">Delete Client</button>
+                        </div>
+                    </div>
+                </form>
 
                 <form class="ui form">
 
@@ -466,7 +527,7 @@
                                 <div class="ui icon header">
                                     <img class="ui large centered image" src="https://localhost:5005/images/spotify.webp" id="client_logo">
                                 </div>
-                                <input type="file" class="ui primary button" value="Browse Logo" onchange="readImage(this);" />
+                                <input type="file" class="ui primary button" accept="image/*" onchange="readImage(this);" />
                             </div>
                         </div>
                     </div>
@@ -572,6 +633,7 @@
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
