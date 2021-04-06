@@ -46,7 +46,7 @@
             switch (grandName)
             {
                 case "code":
-                    <img class="ui avatar image incircle" src="/images/chrome.png">
+                    <img class="ui avatar image incircle" src="/images/chrome.png">                    
                     break;
                 case "client_credentials":
                     <img class="ui avatar image incircle" src="/images/server.png">
@@ -137,32 +137,36 @@
                     {
                         @foreach (var client in Model.AuthClient)
                         {
-                            <div class="item">
-                                <img class="ui mini image" src="@client.Logo">
-                                @{ RenderFlowIcon(client.AllowedGrantTypes); }
-                                <div class="content">
-                                    <div class="content">
-                                        <div class="header"><a class="ui label">@client.ClientId</a> | <a href="#" class="client-handle" data-id="@client.Id">@client.ClientName</a> | @{ RenderGrantType(client.AllowedGrantTypes); }</div>
-                                    </div>
-                                    <div class="description">@client.ClientDescription</div>
-                                    <div class="description">
-                                        @if (client.IsActive)
-                                        {
-                                            <div class="description" style="margin-top: 10px;">
-                                                <a class="ui green empty circular label"></a>
-                                                <a class="ui basic label">ACTIVE</a>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="description" style="margin-top: 10px;">
-                                                <a class="ui red empty circular label"></a>
-                                                <a class="ui basic label">SUSPENDED</a>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
+                    <div class="item">
+                        <img class="ui mini image" src="@client.Logo">
+                        @{ RenderFlowIcon(client.AllowedGrantTypes); }
+                        <div class="content">
+                            <div class="content">
+                                <div class="header"><a class="ui label">@client.ClientId</a> | <a href="#" class="client-handle" data-id="@client.Id">@client.ClientName</a> | @{ RenderGrantType(client.AllowedGrantTypes); }</div>
                             </div>
+                            <div class="description">@client.ClientDescription</div>
+                            <div class="description">
+                                @if (client.IsActive)
+                                {
+                                    <div class="description" style="margin-top: 10px;">
+                                        <a class="ui green empty circular label"></a>
+                                        <a class="ui basic label">ACTIVE</a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="description" style="margin-top: 10px;">
+                                        <a class="ui red empty circular label"></a>
+                                        <a class="ui basic label">SUSPENDED</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        @if (client.IsBeta)
+                        {
+                            <img class="ui image" src="/images/dev.png" style="width: 40px;float: right;">
+                        }
+                    </div>
                         }
                     }
                     else
@@ -395,7 +399,7 @@
                             <button class="positive ui fluid button" onclick="saveApi()">Save API</button>
                         </div>
                         <div class="six wide field">
-                            <button class="orange ui fluid button" onclick="activateInactivateApi()">Suspend API</button>
+                            <button class="ui fluid button" onclick="activateInactivateApi()">Activate/Suspend API</button>
                         </div>
                         <div class="six wide field">
                             <button class="negative ui fluid button" onclick="deleteApi()">Delete API</button>
@@ -477,7 +481,7 @@
                         </div>
                         <div class="field">
                             <div class="ui checkbox">
-                                <input type="checkbox" tabindex="0" class="hidden">
+                                <input type="checkbox" tabindex="0" class="hidden" id="client_beta">
                                 <label>Mark As BETA/Test Build</label>
                             </div>
                         </div>
@@ -561,7 +565,7 @@
                             <button class="positive ui fluid button" onclick="saveClient()">Save Client</button>
                         </div>
                         <div class="six wide field">
-                            <button class="orange ui fluid button" onclick="activateInactivateClient()">Suspend Client</button>
+                            <button class="ui fluid button" onclick="activateInactivateClient()">Activate/Suspend Client</button>
                         </div>
                         <div class="six wide field">
                             <button class="negative ui fluid button" onclick="deleteClient()">Delete Client</button>

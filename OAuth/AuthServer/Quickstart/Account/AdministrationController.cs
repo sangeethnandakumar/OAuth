@@ -230,6 +230,21 @@ namespace IdentityServerHost.Quickstart.UI
         }
 
         [HttpGet]
+        [Route("EnableDisableClient")]
+        public async Task<IActionResult> EnableDisableClient(Guid clientId)
+        {
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("EnableDisableApi")]
+        public async Task<IActionResult> EnableDisableApi(Guid apiId)
+        {
+            return Ok();
+        }
+
+
+        [HttpGet]
         [Route("DeleteClient")]
         public async Task<IActionResult> DeleteClient(string clientId)
         {

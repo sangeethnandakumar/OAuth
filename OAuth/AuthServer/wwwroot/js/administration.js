@@ -78,6 +78,7 @@ function resetForm() {
     $('#client_cors_orgins').val("");
     $('#clients_allowedscopes').html("");
     $('#clients_unappliedscope_list').html("");
+    $('#client_beta').prop('checked', false);
 }
 
 function authCodeMode() {
@@ -247,6 +248,7 @@ function loadClientDetails(clientId) {
         $('#client_postredirecturi').val(response.postLogoutRedirectUris);
         $('#client_cors_orgins').val(response.allowedCorsOrigins);
         $('#client_logo').attr('src', response.logo);
+        $('#client_beta').prop('checked', response.isBeta);
 
         $('#code').removeClass();
         $('#code').addClass('csharp');
@@ -616,7 +618,7 @@ function saveClient() {
         "allowedCorsOrigins": $('#client_cors_orgins').val(),
         "allowedScopes": getScopesCsv('clients_allowedscopes'),
         "isActive": true,
-        "isBeta": false,
+        "isBeta": $('#client_beta').is(':checked'),
         "maintananceMessage": $('#client_inactive_message').val(),
         "logo": $('#client_logo').attr('src')
     };
@@ -626,7 +628,10 @@ function saveClient() {
 }
 
 function activateInactivateClient() {
-
+    var clientId = $('#selected-client').val();
+    $.get('Administration/EnableDisableClient', { clientId: clientId }, function (response) {
+        location.reload();
+    });
 }
 
 function deleteClient() {
@@ -649,7 +654,10 @@ function saveApi() {
 }
 
 function activateInactivateApi() {
-
+    var apiId = $('#selected-api').val();
+    $.get('Administration/EnableDisableApi', { apiId: apiId }, function (response) {
+        location.reload();
+    });
 }
 
 function deleteApi() {
