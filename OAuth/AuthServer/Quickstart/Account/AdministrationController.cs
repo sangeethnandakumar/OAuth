@@ -182,16 +182,22 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("SaveClient")]
         public async Task<IActionResult> SaveClient(AuthClient client)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
-            if (client.Id == null)
+            try
             {
-                client.Id = Guid.NewGuid();
-                SqlHelper.Insert<AuthClient>(client, connectionString);
+                var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+                if (client.Id == null)
+                {
+                    client.Id = Guid.NewGuid();
+                    SqlHelper.Insert<AuthClient>(client, connectionString);
+                }
+                else
+                {
+                    SqlHelper.Update<AuthClient>(client, connectionString);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                SqlHelper.Update<AuthClient>(client, connectionString);
-            }
+            }            
             return Ok();
         }
 

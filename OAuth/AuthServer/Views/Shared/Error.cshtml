@@ -1,40 +1,20 @@
-@model ErrorViewModel
-
 @{
-    var error = Model?.Error?.Error;
-    var errorDescription = Model?.Error?.ErrorDescription;
-    var request_id = Model?.Error?.RequestId;
+    Layout = null;
 }
+<html>
+<head>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/semantic.js"></script>
+    <link href="~/css/semantic.css" rel="stylesheet" />
+    <script src="~/js/administration.js"></script>
 
-<div class="error-page">
-    <div class="lead">
-        <h1>Error</h1>
-    </div>
+    <link href="~/css/highlight.css" rel="stylesheet" />
+    <script src="~/js/highlight.js"></script>
 
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="alert alert-danger">
-                Sorry, there was an error
-
-                @if (error != null)
-                {
-                    <strong>
-                        <em>
-                            : @error
-                        </em>
-                    </strong>
-
-                    if (errorDescription != null)
-                    {
-                        <div>@errorDescription</div>
-                    }
-                }
-            </div>
-
-            @if (request_id != null)
-            {
-                <div class="request-id">Request Id: @request_id</div>
-            }
-        </div>
-    </div>
-</div>
+    <link href="~/css/administration.css" rel="stylesheet" />
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <h1>Sorry An Error Occured</h1>
+</body>
+</html>

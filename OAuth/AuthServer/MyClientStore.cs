@@ -21,7 +21,10 @@ namespace AuthServer
             if (client != null)
             {
                 var allowedScopes = new List<string>() { "openid", "profile" };
-                allowedScopes.AddRange(client.AllowedScopes.Split(","));
+                if(client.AllowedScopes!=null)
+                {
+                    allowedScopes.AddRange(client.AllowedScopes.Split(","));
+                }               
 
                 switch (client.AllowedGrantTypes)
                 {

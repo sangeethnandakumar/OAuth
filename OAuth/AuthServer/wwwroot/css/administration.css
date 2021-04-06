@@ -1,0 +1,23 @@
+﻿.info-msg {
+    color: blue;
+}
+
+.incircle {
+    width: 22px !important;
+    height: 22px !important;
+    left: -12px;
+    top: 14px;
+}
+
+.scope-desc {
+    margin-left: 45px;
+}
+
+.grid {
+    margin: 100px !important;
+}
+
+.placeholder {
+    height: 137px;
+    min-height: auto !important;
+}
