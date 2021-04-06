@@ -9,7 +9,7 @@ namespace AuthServer.Configuration
     [Table("AuthApiResources")]
     public class AuthApiResources
     {
-        [Key]
+        [ExplicitKey]
         public Guid? Id { get; set; }
 
         public string Name { get; set; }

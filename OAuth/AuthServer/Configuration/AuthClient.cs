@@ -9,7 +9,7 @@ namespace AuthServer.Configuration
     [Table("AuthClients")]
     public class AuthClient
     {
-        [Key]
+        [ExplicitKey]
         public Guid? Id { get; set; }
 
         public string ClientName { get; set; }
@@ -23,7 +23,9 @@ namespace AuthServer.Configuration
         public int AccessTokenLifetime { get; set; }
         public int IdentityTokenLifetime { get; set; }
         public string AllowedScopes { get; set; }
-        public bool? IsActive { get; set; }
+        public bool IsActive { get; set; }
         public string MaintananceMessage { get; set; }
+        public bool IsBeta { get; set; }
+        public string Logo { get; set; }
     }
 }

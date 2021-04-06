@@ -17,7 +17,7 @@ namespace IdentityServerHost.Quickstart.UI
         public async Task<IActionResult> Index()
         {
             var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
-            var authClients = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients ORDER BY ClientId", connectionString).ToList();
+            var authClients = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients ORDER BY AllowedGrantTypes", connectionString).ToList();
             var authApiResources = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources ORDER BY Name", connectionString).ToList();
             var authScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes ORDER BY ScopeName", connectionString).ToList();
             var vm = new AdministrationVM
@@ -81,8 +81,16 @@ namespace IdentityServerHost.Quickstart.UI
         {
             //NOTE: Requires 'dbo.Split' function in database
             var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
-            var authClient = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM dbo.Split((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
-            return Ok(authClient);
+            if (clientId != Guid.Empty)
+            {
+                var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM dbo.Split((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
+                return Ok(scopes);
+            }
+            else
+            {
+                var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes", connectionString);
+                return Ok(scopes);
+            }
         }
 
         [HttpGet]
@@ -211,6 +219,7 @@ namespace IdentityServerHost.Quickstart.UI
             var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             if (scope.Id == null)
             {
+                scope.Id = Guid.NewGuid();
                 SqlHelper.Insert<AuthScope>(scope, connectionString);
             }
             else

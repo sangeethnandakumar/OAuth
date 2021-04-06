@@ -21,6 +21,11 @@ function init() {
         adjustFormWithGrant($(this).dropdown('get value'));
     });
 
+    $('#scope_api_association').on('change', function () {
+        $('#scope_name').val($(this).dropdown('get value') + ".");
+        $('#scope_desc').val("");
+    });
+
     $('input').bind('input propertychange', function () {
         var str = $(this).val();
         var patt = new RegExp($(this).attr('pattern'));
@@ -42,6 +47,16 @@ function openApiAssignScopesModel() {
     $('#api_assign_scopes_model').modal('show');
 }
 
+function readImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#client_logo').attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 
 function resetForm() {
     $('#client_secret').parent().show();
@@ -58,8 +73,9 @@ function resetForm() {
     $('#client_inactive_message').val("");
     $('#client_identitytoken_life').val("");
     $('#client_accesstoken_life').val("");
-    $('#client_identitytoken_life').val("");
-    $('#client_accesstoken_life').val("");
+    $('#client_redirecturi').val("");
+    $('#client_postredirecturi').val("");
+    $('#client_cors_orgins').val("");
     $('#clients_allowedscopes').html("");
     $('#clients_unappliedscope_list').html("");
 }
@@ -115,7 +131,9 @@ function assignNewScopesToClient() {
     var clientId = $('#selected-client').val();
     var newScopes = $('#clients_unappliedscope_list').dropdown('get value');
     $.get("Administration/AssignNewScopesToClient", { clientId: clientId, newScopes: newScopes.toString() }, function (response) {
-        location.reload();
+        if (clientId != "") {
+            location.reload();
+        }    
     });
 }
 
@@ -123,7 +141,9 @@ function assignNewScopesToApi() {
     var apiId = $('#selected-api').val();
     var newScopes = $('#api_unappliedscope_list').dropdown('get value');
     $.get("Administration/AssignNewScopesToApi", { apiId: apiId, newScopes: newScopes.toString() }, function (response) {
-        location.reload();
+        if (apiId != "") {
+            location.reload();
+        }    
     });
 }
 
@@ -146,6 +166,9 @@ function loadScopeDetails(scopeId) {
     $('#client_details').hide();
     $('#api_details').hide();
     $('#scope_details').show();
+    $('#api_scope_section').show();
+    $('#api_scope_section_msg').hide();
+    $('#scope_api_association_section').hide();
 
 
     $.get("Administration/GetScope", { scopeId: scopeId }, function (response) {
@@ -205,10 +228,13 @@ function loadClientDetails(clientId) {
     $('#scope_details').hide();
     $('#client_details').show();
 
+    $('#client_scope_section').show();
+    $('#client_scope_section_grant_msg').show();
+    $('#client_scope_section_msg').hide();
+
     $('#client_grant').addClass('disabled');
 
     $.get("Administration/GetClient", { clientId:clientId }, function (response) {
-        console.log(response);
         adjustFormWithGrant(response.allowedGrantTypes);        
         $('#client_name').val(response.clientName);
         $('#client_desc').val(response.clientDescription);
@@ -220,6 +246,7 @@ function loadClientDetails(clientId) {
         $('#client_redirecturi').val(response.redirectUris);
         $('#client_postredirecturi').val(response.postLogoutRedirectUris);
         $('#client_cors_orgins').val(response.allowedCorsOrigins);
+        $('#client_logo').attr('src', response.logo);
 
         $('#code').removeClass();
         $('#code').addClass('csharp');
@@ -586,9 +613,12 @@ function saveClient() {
         "postLogoutRedirectUris": $('#client_postredirecturi').val(),
         "accessTokenLifetime": $('#client_accesstoken_life').val(),
         "identityTokenLifetime": $('#client_identitytoken_life').val(),
+        "allowedCorsOrigins": $('#client_cors_orgins').val(),
         "allowedScopes": getScopesCsv('clients_allowedscopes'),
         "isActive": true,
-        "maintananceMessage": $('#client_inactive_message').val()
+        "isBeta": false,
+        "maintananceMessage": $('#client_inactive_message').val(),
+        "logo": $('#client_logo').attr('src')
     };
     $.post('Administration/SaveClient', { client: data }, function (response) {
         location.reload();
@@ -640,4 +670,71 @@ function saveScope() {
 
 function deleteScope() {
 
+}
+
+
+
+function newClient() {
+    $('#selected-client').val("");
+    $('#infotab').hide();
+    $('#api_details').hide();
+    $('#scope_details').hide();
+    $('#client_details').show();
+    $('#client_scope_section').hide();
+    $('#client_scope_section_msg').show();
+    $('#client_scope_section_grant_msg').hide();
+    resetForm();
+    $('#client_grant').dropdown('set selected', 'code');
+    $('#client_grant').removeClass('disabled');
+    $.get("Administration/GetClientNonAssignedScopes", { clientId: null }, function (response) {
+        var html = '';
+        for (var i = 0; i < response.length; i++) {
+            html += `<option value="` + response[i].scopeName + `">` + response[i].scopeName + `</option>`;
+        }
+        $('#clients_unappliedscope_list').html(html);
+    });
+}
+
+function newApi() {
+    $('#selected-api').val("");
+
+    $('#infotab').hide();
+    $('#client_details').hide();
+    $('#scope_details').hide();
+    $('#api_details').show();
+    $('#api_scope_section').hide();
+    $('#api_scope_section_msg').show();
+  
+
+    //Reset API
+    $('#api_name').val("");
+    $('#api_display_name').val("");
+    $('#api_desc').val("");
+
+    $('#api_allowedscopes').html("");
+
+    $.get("Administration/GetApiNonAssignedScopes", { apiId: "" }, function (response) {
+        var html = '';
+        for (var i = 0; i < response.length; i++) {
+            html += `<option value="` + response[i].scopeName + `">` + response[i].scopeName + `</option>`;
+        }
+        $('#api_unappliedscope_list').html(html);
+    });
+
+}
+
+function newScope() {
+    $('#selected-scope').val("");
+
+    $('#infotab').hide();
+    $('#client_details').hide();
+    $('#api_details').hide();
+    $('#scope_details').show();
+    $('#api_scope_section').show();
+    $('#api_scope_section_msg').hide();
+    $('#scope_api_association_section').show();  
+
+    //Reset API
+    $('#scope_name').val("");
+    $('#scope_desc').val("");
 }

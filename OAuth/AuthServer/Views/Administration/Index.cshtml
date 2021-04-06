@@ -24,7 +24,7 @@
             switch (grandName)
             {
                 case "code":
-                    <div class="ui green horizontal label">authorization code</div>
+                    <div class="ui blue horizontal label">authorization code</div>
                     break;
                 case "client_credentials":
                     <div class="ui green horizontal label">client credentials</div>
@@ -52,7 +52,7 @@
                     <img class="ui avatar image incircle" src="/images/server.png">
                     break;
                 case "implicit":
-                    <img class="ui avatar image incircle" src="/images/spa.png">
+                    <img class="ui avatar image incircle" src="/images/spa.svg">
                     break;
                 case "resource_owner":
                     <img class="ui avatar image incircle" src="/images/postman.png">
@@ -128,81 +128,143 @@
 
         <div class="column padded">
             <h4>OAuth 2.0 Clients</h4>
-            <button class="ui primary button">
+            <button class="ui primary button" onclick="newClient()">
                 Add New Client
             </button>
             <div class="ui raised segment">
                 <div class="ui very relaxed list">
-                    @foreach (var client in Model.AuthClient)
+                    @if (Model.AuthClient.Count > 0)
                     {
-                        <div class="item">
-                            <img class="ui avatar image" src="/images/spotify.webp">
-                            @{ RenderFlowIcon(client.AllowedGrantTypes); }
-                            <div class="content">
+                        @foreach (var client in Model.AuthClient)
+                        {
+                            <div class="item">
+                                <img class="ui mini image" src="@client.Logo">
+                                @{ RenderFlowIcon(client.AllowedGrantTypes); }
                                 <div class="content">
-                                    <div class="header"><a class="ui label">@client.ClientId</a> | <a href="#" class="client-handle" data-id="@client.Id">@client.ClientName</a> | @{ RenderGrantType(client.AllowedGrantTypes); }</div>
+                                    <div class="content">
+                                        <div class="header"><a class="ui label">@client.ClientId</a> | <a href="#" class="client-handle" data-id="@client.Id">@client.ClientName</a> | @{ RenderGrantType(client.AllowedGrantTypes); }</div>
+                                    </div>
+                                    <div class="description">@client.ClientDescription</div>
+                                    <div class="description">
+                                        @if (client.IsActive)
+                                        {
+                                            <div class="description" style="margin-top: 10px;">
+                                                <a class="ui green empty circular label"></a>
+                                                <a class="ui basic label">ACTIVE</a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="description" style="margin-top: 10px;">
+                                                <a class="ui red empty circular label"></a>
+                                                <a class="ui basic label">SUSPENDED</a>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
-                                <div class="description">@client.ClientDescription</div>
                             </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="ui visible message">
+                            <p>No Clients Configured</p>
                         </div>
                     }
                 </div>
             </div>
 
             <h4>OAuth 2.0 API Resources</h4>
-            <button class="ui primary button">
+            <button class="ui primary button" onclick="newApi()">
                 Add New API
             </button>
             <div class="ui raised segment">
                 <div class="ui very relaxed list">
-                    @foreach (var api in Model.AuthApiResources)
-                    {
-                        <div class="item">
-                            <img class="ui mini image" src="/images/api.png">
-                            <div class="content">
-                                <div class="content">
-                                    <div class="header">
-                                        <a class="ui green label">@api.Name</a> | <a href="#" class="api-handle" data-id="@api.Id">@api.DisplayName</a>
-                                    </div>
-                                </div>
-                                <div class="description">@api.Description</div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
 
-            <h4>OAuth 2.0 All Scopes</h4>
-            <button class="ui primary button">
-                Add New Scope
-            </button>
-            <div class="ui raised segment">
-                @{
-                    var distinctScopeHeader = Model.AuthScopes.Select(x => x.ScopeName.Split(".")[0]).Distinct();
-                    foreach (var distinct in distinctScopeHeader)
+                    @if (Model.AuthApiResources.Count > 0)
                     {
-                        var scopes = Model.AuthScopes.Where(x => x.ScopeName.StartsWith(distinct));
-                        <div class="ui styled fluid accordion">
-                            <div class="title">
-                                <i class="dropdown icon"></i>
-                                @distinct
-                            </div>
-                            <div class="content">
-                                <div class="transition hidden">
-                                    <div class="ui very relaxed list">
-                                        @foreach (var scope in scopes)
+                        @foreach (var api in Model.AuthApiResources)
+                        {
+                            <div class="item">
+                                <img class="ui mini image" src="/images/api.png">
+                                <div class="content">
+                                    <div class="content">
+                                        <div class="header">
+                                            <a class="ui green label">@api.Name</a> | <a href="#" class="api-handle" data-id="@api.Id">@api.DisplayName</a>
+                                        </div>
+                                    </div>
+                                    <div class="description">@api.Description</div>
+                                    <div class="description">
+                                        @if (api.IsActive)
                                         {
-                                            <div class="item">
-                                                <img class="ui mini image" src="/images/scope.png">
-                                                <div class="content">
-                                                    @{RenderScopes(scope.ScopeName, scope.Id.ToString());}
-                                                </div>
-                                                <div class="description scope-desc">@scope.ScopeDescription</div>
+                                            <div class="description" style="margin-top: 10px;">
+                                                <a class="ui green empty circular label"></a>
+                                                <a class="ui basic label">ACTIVE</a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="description" style="margin-top: 10px;">
+                                                <a class="ui red empty circular label"></a>
+                                                <a class="ui basic label">SUSPENDED</a>
                                             </div>
                                         }
                                     </div>
                                 </div>
                             </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="ui visible message">
+                            <p>No API's Configured</p>
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+            <h4>OAuth 2.0 All Scopes</h4>
+            <button class="ui primary button" onclick="newScope()">
+                Add New Scope
+            </button>
+            <div class="ui raised segment">
+                @{
+                    var distinctScopeHeader = Model.AuthScopes.Select(x => x.ScopeName.Split(".")[0]).Distinct();
+
+                    @if (Model.AuthScopes.Count > 0)
+                    {
+                        foreach (var distinct in distinctScopeHeader)
+                        {
+                            var scopes = Model.AuthScopes.Where(x => x.ScopeName.StartsWith(distinct));
+                            <div class="ui styled fluid accordion">
+                                <div class="title">
+                                    <i class="dropdown icon"></i>
+                                    @distinct
+                                </div>
+                                <div class="content">
+                                    <div class="transition hidden">
+                                        <div class="ui very relaxed list">
+                                            @foreach (var scope in scopes)
+                                            {
+                                                <div class="item">
+                                                    <img class="ui mini image" src="/images/scope.png">
+                                                    <div class="content">
+                                                        @{RenderScopes(scope.ScopeName, scope.Id.ToString());}
+                                                    </div>
+                                                    <div class="description scope-desc">@scope.ScopeDescription</div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="ui visible message">
+                            <p>No Scopes Configured</p>
                         </div>
                     }
                 }
@@ -238,19 +300,23 @@
                 <form class="ui form">
                     <div class="ui raised segment">
                         <h4 class="ui dividing header">Configuration Setup</h4>
-                        <div class="field">
+
+                        <div class="field" id="scope_api_association_section">
                             <label>Associate Scope with API</label>
                             <div class="ui selection dropdown" id="scope_api_association">
                                 <input type="hidden" name="gender">
                                 <i class="dropdown icon"></i>
-                                <div class="default text">Select a grand</div>
+                                <div class="default text">Select an API</div>
                                 <div class="menu">
-                                    <div class="item" data-value="">No Association</div>
-                                    <div class="item" data-value="1234">Api1</div>
-                                    <div class="item" data-value="12345">Api2</div>
+                                    <div class="item" data-value="">Generic Association</div>
+                                    @foreach (var api in Model.AuthApiResources)
+                                    {
+                                        <div class="item" data-value="@api.Name">@api.DisplayName</div>
+                                    }
                                 </div>
                             </div>
                         </div>
+
                         <div class="sixteen wide field">
                             <label>Scope Name</label>
                             <input type="text" id="scope_name" maxlength="50" placeholder="SpotifyMusic.Upload">
@@ -301,7 +367,11 @@
                     </div>
                 </form>
 
-                <div class="ui raised segment">
+                <div class="ui yellow message" id="api_scope_section_msg" style="display:none">
+                    <p>You can add supported scopes once you save the api</p>
+                </div>
+
+                <div class="ui raised segment" id="api_scope_section">
                     <h4 class="ui dividing header">Supported Scopes</h4>
                     <button class="ui primary button" onclick="openApiAssignScopesModel()">
                         Support New Scope
@@ -339,7 +409,7 @@
         <div class="column" id="client_details" style="display:none">
             <h4>Details</h4>
 
-            <div class="ui success message">
+            <div class="ui info message">
                 <div class="header">
                     Note: No Strict Validations
                 </div>
@@ -350,20 +420,23 @@
                 </ul>
             </div>
 
-            <div class="ui negative message">
-                <i class="close icon"></i>
-                <div class="header">
-                    AuthFlow/Grant is locked
-                </div>
-                <p>
-                    If you want to change the grant of this client, Delete the client and create new one
-                </p>
-            </div>
-
             <div class="ui segment">
+
                 <form class="ui form">
 
                     <div class="ui raised segment">
+
+
+                        <div class="ui negative message" id="client_scope_section_grant_msg">
+                            <i class="close icon"></i>
+                            <div class="header">
+                                AuthFlow/Grant is locked
+                            </div>
+                            <p>
+                                If you want to change the grant of this client, Delete the client and create new one
+                            </p>
+                        </div>
+
                         <h4 class="ui dividing header">Authentication Flow</h4>
                         <div class="field">
                             <label>Grant</label>
@@ -387,9 +460,9 @@
                             <label>Client Logo</label>
                             <div class="ui placeholder segment">
                                 <div class="ui icon header">
-                                    <img class="ui large centered image" src="https://localhost:5005/images/spotify.webp">
+                                    <img class="ui large centered image" src="https://localhost:5005/images/spotify.webp" id="client_logo">
                                 </div>
-                                <div class="ui primary button">Browse Logo</div>
+                                <input type="file" class="ui primary button" value="Browse Logo" onchange="readImage(this);" />
                             </div>
                         </div>
                     </div>
@@ -460,7 +533,11 @@
                     </div>
                 </form>
 
-                <div class="ui raised segment">
+                <div class="ui yellow message" id="client_scope_section_msg" style="display:none">
+                    <p>You can add allowed scopes once you save the client</p>
+                </div>
+
+                <div class="ui raised segment" id="client_scope_section">
                     <h4 class="ui dividing header">Allowed Scopes</h4>
                     <button class="ui primary button" onclick="openClientAssignScopesModel()">
                         Assign New Scope

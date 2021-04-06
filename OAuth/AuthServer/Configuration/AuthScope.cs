@@ -9,7 +9,7 @@ namespace AuthServer.Configuration
     [Table("AuthScopes")]
     public class AuthScope
     {
-        [Key]
+        [ExplicitKey]
         public Guid? Id { get; set; }
 
         public string ScopeName { get; set; }
