@@ -4,17 +4,23 @@
 <html>
 <head>
     <script src="~/js/jquery.js"></script>
-    <script src="~/js/semantic.js"></script>
-    <link href="~/css/semantic.css" rel="stylesheet" />
-    <script src="~/js/administration.js"></script>
-
-    <link href="~/css/highlight.css" rel="stylesheet" />
-    <script src="~/js/highlight.js"></script>
+    <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 
     <link href="~/css/administration.css" rel="stylesheet" />
-    <script>hljs.highlightAll();</script>
 </head>
 <body>
-    <h1>Sorry An Error Occured</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 mt3">
+                <img class="profile-img" src="/images/spotify.webp" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-md-offset-4">
+                <h1 class="text-center login-title">We're sorry. You cannot login</h1>
+                <h1 class="text-center">Access To <b>Spotify</b></h1>
+                <h5 class="text-center">Is temporarly unavailable or disabled. Try again after sometime</h5>             
+                <h5 class="text-center">Or contact site maintainers</h5>             
+            </div>
+        </div>
+    </div>
 </body>
 </html>

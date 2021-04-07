@@ -26,6 +26,7 @@ namespace AuthServer.Configuration
         public bool IsActive { get; set; }
         public string MaintananceMessage { get; set; }
         public bool IsBeta { get; set; }
+        public bool Is3rdParty { get; set; }
         public string Logo { get; set; }
     }
 }

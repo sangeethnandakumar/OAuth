@@ -42,7 +42,8 @@ namespace AuthServer
                             UpdateAccessTokenClaimsOnRefresh = true,
                             AlwaysIncludeUserClaimsInIdToken = true,
                             PostLogoutRedirectUris = new List<string> { client.PostLogoutRedirectUris },
-                            AllowedScopes = allowedScopes
+                            AllowedScopes = allowedScopes,
+                            RequireConsent = client.Is3rdParty
                         };
                         break;
 
@@ -74,7 +75,8 @@ namespace AuthServer
                             AllowRememberConsent = true,
                             AllowedScopes = allowedScopes,
                             RedirectUris = { client.RedirectUris },
-                            PostLogoutRedirectUris = { client.PostLogoutRedirectUris }
+                            PostLogoutRedirectUris = { client.PostLogoutRedirectUris },
+                            RequireConsent = client.Is3rdParty
                         };
                         break;
 

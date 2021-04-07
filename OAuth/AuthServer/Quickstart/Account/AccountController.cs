@@ -1,7 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using AuthServer.Configuration;
 using AuthServer.Services;
+using ExpressData;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Events;
@@ -54,22 +56,19 @@ namespace IdentityServerHost.Quickstart.UI
             _events = events;
         }
 
-        /// <summary>
-        /// Entry point into the login workflow
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Login(string returnUrl)
         {
-            // build a model so we know what to show on the login page
             var vm = await BuildLoginViewModelAsync(returnUrl);
-
-            if (vm.IsExternalLoginOnly)
+            if (vm != null)
             {
-                // we only have one option for logging in and it's an external provider
-                return RedirectToAction("Challenge", "External", new { scheme = vm.ExternalLoginScheme, returnUrl });
+                if (vm.IsExternalLoginOnly)
+                {
+                    return RedirectToAction("Challenge", "External", new { scheme = vm.ExternalLoginScheme, returnUrl });
+                }
+                return View(vm);
             }
-
-            return View(vm);
+            return Redirect("~/");
         }
 
         /// <summary>
@@ -272,14 +271,27 @@ namespace IdentityServerHost.Quickstart.UI
                 }
             }
 
-            return new LoginViewModel
+            if(context!=null)
             {
-                AllowRememberLogin = AccountOptions.AllowRememberLogin,
-                EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
-                ReturnUrl = returnUrl,
-                Username = context?.LoginHint,
-                ExternalProviders = providers.ToArray()
-            };
+                var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+                var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
+                var ssoAuthorityName = "SAMMS";
+
+                return new LoginViewModel
+                {
+                    AllowRememberLogin = AccountOptions.AllowRememberLogin,
+                    EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
+                    ReturnUrl = returnUrl,
+                    Username = context?.LoginHint,
+                    ExternalProviders = providers.ToArray(),
+                    ClientDisplayName = authClient.ClientName,
+                    ClientIcon = authClient.Logo,
+                    IsBeta = authClient.IsBeta,
+                    Is3rdParty = authClient.Is3rdParty,
+                    SingleSignOnAuthorityName = ssoAuthorityName
+                };
+            }
+            return null;
         }
 
         private async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model)

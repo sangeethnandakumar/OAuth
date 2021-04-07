@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System;
+using ExpressData;
+using AuthServer.Configuration;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -166,7 +168,7 @@ namespace IdentityServerHost.Quickstart.UI
             var request = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (request != null)
             {
-                return CreateConsentViewModel(model, returnUrl, request);
+                return await CreateConsentViewModel(model, returnUrl, request);
             }
             else
             {
@@ -176,10 +178,16 @@ namespace IdentityServerHost.Quickstart.UI
             return null;
         }
 
-        private ConsentViewModel CreateConsentViewModel(
+        private async Task<ConsentViewModel> CreateConsentViewModel(
             ConsentInputModel model, string returnUrl,
             AuthorizationRequest request)
         {
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
+            var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
+            var ssoAuthorityName = "SAMMS";
+
+
             var vm = new ConsentViewModel
             {
                 RememberConsent = model?.RememberConsent ?? true,
@@ -191,7 +199,13 @@ namespace IdentityServerHost.Quickstart.UI
                 ClientName = request.Client.ClientName ?? request.Client.ClientId,
                 ClientUrl = request.Client.ClientUri,
                 ClientLogoUrl = request.Client.LogoUri,
-                AllowRememberConsent = request.Client.AllowRememberConsent
+                AllowRememberConsent = request.Client.AllowRememberConsent,
+
+                SingleSignOnAuthorityName = ssoAuthorityName,
+                ClientDisplayName = authClient.ClientName,
+                ClientIcon = authClient.Logo
+
+                
             };
 
             vm.IdentityScopes = request.ValidatedResources.Resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();

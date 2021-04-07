@@ -1,11 +1,147 @@
 @model ConsentViewModel
 
+@{
+    Layout = null;
+}
+<html>
+<head>
+    <script src="~/js/jquery.js"></script>
+    <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link href="~/css/administration.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 mt3">
+                <img class="profile-img" src="@Model.ClientIcon" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-md-offset-4">
+                <h1 class="text-center login-title">@Model.ClientDisplayName is requesting your permission</h1>
+                <h1 class="text-center">Authorize <b>@Model.ClientDisplayName</b></h1>
+                <h5 class="text-center">Uncheck the permissions you do not wish to grant</h5>
+            </div>
+
+            <form asp-action="Index">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div class="row">
+                    <div class="col-sm-8">
+                        @if (Model.IdentityScopes.Any())
+                        {
+                            <div class="form-group">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <span class="glyphicon glyphicon-user"></span>Personal Information
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var scope in Model.IdentityScopes)
+                                        {
+                                            <li class="list-group-item">
+                                                <label>
+                                                    <input class="consent-scopecheck"
+                                                           type="checkbox"
+                                                           name="ScopesConsented"
+                                                           id="scopes_@scope.Value"
+                                                           value="@scope.Value"
+                                                           checked="@scope.Checked"
+                                                           disabled="@scope.Required" />
+                                                    @if (scope.Required)
+                                                    {
+                                            <input type="hidden"
+                                                   name="ScopesConsented"
+                                                   value="@scope.Value" />}
+                                                    <strong>@scope.DisplayName</strong>
+                                                    @if (scope.Emphasize)
+                                                    {
+                                            <span class="glyphicon glyphicon-exclamation-sign"></span>}
+                                                </label>
+                                                @if (scope.Required)
+                                                {
+                                            <span><em>(required)</em></span>}
+                                                @if (scope.Description != null)
+                                                {
+                                            <div class="consent-description">
+                                                <label for="scopes_@scope.Value">@Model.Description</label>
+                                            </div>}
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                         }
+
+                        @if (Model.ApiScopes.Any())
+                        {
+                            <div class="form-group">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <span class="glyphicon glyphicon-tasks"></span>Application Access
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var scope in Model.ApiScopes)
+                                        {
+                                            <partial name="_ScopeListItem" model="scope" />
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Description
+                                </div>
+                                <div class="card-body">
+                                    <input class="form-control" placeholder="Description or name of device" asp-for="Description" autofocus>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (Model.AllowRememberConsent)
+                        {
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="RememberConsent">
+                                    <label class="form-check-label" asp-for="RememberConsent">
+                                        <strong>Remember My Decision</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <button name="button" value="yes" class="btn btn-primary" autofocus>Yes, Allow</button>
+                        <button name="button" value="no" class="btn btn-secondary">No, Do Not Allow</button>
+                    </div>
+                    <div class="col-sm-4 col-lg-auto">
+                        @if (Model.ClientUrl != null)
+                        {
+            <a class="btn btn-outline-info" href="@Model.ClientUrl">
+                <span class="glyphicon glyphicon-info-sign"></span>
+                <strong>@Model.ClientName</strong>
+            </a>}
+                    </div>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+</body>
+</html>
+
+
+
 <div class="page-consent">
     <div class="lead">
         @if (Model.ClientLogoUrl != null)
         {
-            <div class="client-logo"><img src="@Model.ClientLogoUrl"></div>
-        }
+<div class="client-logo"><img src="@Model.ClientLogoUrl"></div>}
         <h1>
             @Model.ClientName
             <small class="text-muted">is requesting your permission</small>
@@ -25,39 +161,37 @@
             <div class="col-sm-8">
                 @if (Model.IdentityScopes.Any())
                 {
-                    <div class="form-group">
-                        <div class="card">
-                            <div class="card-header">
-                                <span class="glyphicon glyphicon-user"></span>
-                                Personal Information
-                            </div>
-                            <ul class="list-group list-group-flush">
-                                @foreach (var scope in Model.IdentityScopes)
-                                {
-                                    <partial name="_ScopeListItem" model="@scope" />
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                }
+    <div class="form-group">
+        <div class="card">
+            <div class="card-header">
+                <span class="glyphicon glyphicon-user"></span>
+                Personal Information
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var scope in Model.IdentityScopes)
+                {
+<partial name="_ScopeListItem" model="@scope" />
+}
+            </ul>
+        </div>
+    </div>}
 
                 @if (Model.ApiScopes.Any())
                 {
-                    <div class="form-group">
-                        <div class="card">
-                            <div class="card-header">
-                                <span class="glyphicon glyphicon-tasks"></span>
-                                Application Access
-                            </div>
-                            <ul class="list-group list-group-flush">
-                                @foreach (var scope in Model.ApiScopes)
-                                {
-                                    <partial name="_ScopeListItem" model="scope" />
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                }
+    <div class="form-group">
+        <div class="card">
+            <div class="card-header">
+                <span class="glyphicon glyphicon-tasks"></span>
+                Application Access
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var scope in Model.ApiScopes)
+                {
+<partial name="_ScopeListItem" model="scope" />
+}
+            </ul>
+        </div>
+    </div>}
 
                 <div class="form-group">
                     <div class="card">
@@ -73,15 +207,14 @@
 
                 @if (Model.AllowRememberConsent)
                 {
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input class="form-check-input" asp-for="RememberConsent">
-                            <label class="form-check-label" asp-for="RememberConsent">
-                                <strong>Remember My Decision</strong>
-                            </label>
-                        </div>
-                    </div>
-                }
+    <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" asp-for="RememberConsent">
+            <label class="form-check-label" asp-for="RememberConsent">
+                <strong>Remember My Decision</strong>
+            </label>
+        </div>
+    </div>}
             </div>
         </div>
 
@@ -93,11 +226,10 @@
             <div class="col-sm-4 col-lg-auto">
                 @if (Model.ClientUrl != null)
                 {
-                    <a class="btn btn-outline-info" href="@Model.ClientUrl">
-                        <span class="glyphicon glyphicon-info-sign"></span>
-                        <strong>@Model.ClientName</strong>
-                    </a>
-                }
+    <a class="btn btn-outline-info" href="@Model.ClientUrl">
+        <span class="glyphicon glyphicon-info-sign"></span>
+        <strong>@Model.ClientName</strong>
+    </a>}
             </div>
         </div>
     </form>
