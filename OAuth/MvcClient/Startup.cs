@@ -39,6 +39,11 @@ namespace MVCClient
                 opt.ClientSecret = "MVCSecret";
                 opt.UseTokenLifetime = true;
                 opt.SaveTokens = true;
+
+               opt.Scope.Clear();
+               opt.Scope.Add("openid");
+               opt.Scope.Add("profile");
+               opt.Scope.Add("Api1");
             });
         }
 
