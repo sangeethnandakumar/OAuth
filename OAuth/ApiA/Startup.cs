@@ -1,3 +1,4 @@
+using IdentityModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -46,8 +47,12 @@ namespace ApiA
                 options.AddPolicy("ApiScope", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", "Api1");
+                    policy.RequireClaim(JwtClaimTypes.Scope, "Api1");
                 });
+
+                //options.AddPolicy("Account", policy => policy.RequireClaim(JwtClaimTypes.Scope, "account"));
+                //options.AddPolicy("AccountRead", policy => policy.RequireClaim(JwtClaimTypes.Scope, "account.read"));
+                //[Authorize(Policy = "Account")]
             });
             services.AddCors(options =>
             {

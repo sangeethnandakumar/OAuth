@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -38,7 +39,11 @@ namespace IdentityServerHost.Quickstart.UI
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IEventService _events;
 
+        private readonly IConfiguration config;
+        private readonly string connectionString;
+
         public AccountController(
+            IConfiguration config,
             IUserService userService,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
@@ -54,6 +59,8 @@ namespace IdentityServerHost.Quickstart.UI
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+            this.config = config;
+            this.connectionString = config.GetConnectionString("AuthConfigDatabase");
         }
 
         [HttpGet]
@@ -273,7 +280,6 @@ namespace IdentityServerHost.Quickstart.UI
 
             if(context!=null)
             {
-                var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
                 var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
                 var ssoAuthorityName = "SAMMS";
 
@@ -288,7 +294,8 @@ namespace IdentityServerHost.Quickstart.UI
                     ClientIcon = authClient.Logo,
                     IsBeta = authClient.IsBeta,
                     Is3rdParty = authClient.Is3rdParty,
-                    SingleSignOnAuthorityName = ssoAuthorityName
+                    SingleSignOnAuthorityName = ssoAuthorityName,
+                    IsActive = authClient.IsActive
                 };
             }
             return null;

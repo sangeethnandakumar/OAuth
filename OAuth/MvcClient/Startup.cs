@@ -43,7 +43,12 @@ namespace MVCClient
                opt.Scope.Clear();
                opt.Scope.Add("openid");
                opt.Scope.Add("profile");
-               opt.Scope.Add("Api1");
+
+                opt.Scope.Add("scx-api.meetings");
+                opt.Scope.Add("scx-api.management");
+                opt.Scope.Add("scx-api.exports");
+                opt.Scope.Add("scx-api.services");
+
             });
         }
 

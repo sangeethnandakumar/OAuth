@@ -14,6 +14,7 @@ namespace IdentityServerHost.Quickstart.UI
         public string ClientDisplayName { get; set; }
         public string ClientIcon { get; set; }
         public bool IsBeta { get; set; }
+        public bool IsActive { get; set; }
         public bool Is3rdParty { get; set; }
         public string SingleSignOnAuthorityName { get; set; }
 

@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System;
 using ExpressData;
 using AuthServer.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -30,7 +31,11 @@ namespace IdentityServerHost.Quickstart.UI
         private readonly IEventService _events;
         private readonly ILogger<ConsentController> _logger;
 
+        private readonly IConfiguration config;
+        private readonly string connectionString;
+
         public ConsentController(
+            IConfiguration config,
             IIdentityServerInteractionService interaction,
             IEventService events,
             ILogger<ConsentController> logger)
@@ -38,6 +43,8 @@ namespace IdentityServerHost.Quickstart.UI
             _interaction = interaction;
             _events = events;
             _logger = logger;
+            this.config = config;
+            this.connectionString = config.GetConnectionString("AuthConfigDatabase");
         }
 
         /// <summary>
@@ -183,7 +190,6 @@ namespace IdentityServerHost.Quickstart.UI
             AuthorizationRequest request)
         {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
             var ssoAuthorityName = "SAMMS";
 

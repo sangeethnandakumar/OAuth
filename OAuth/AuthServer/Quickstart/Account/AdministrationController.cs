@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -14,9 +16,18 @@ namespace IdentityServerHost.Quickstart.UI
     [Route("[controller]")]
     public class AdministrationController : Controller
     {
+
+        private readonly IConfiguration config;
+        private readonly string connectionString;
+
+        public AdministrationController(IConfiguration config)
+        {
+            this.config = config;
+            this.connectionString = config.GetConnectionString("AuthConfigDatabase");
+        }
+
         public async Task<IActionResult> Index()
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var authClients = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients ORDER BY IsActive DESC, ClientName", connectionString).ToList();
             var authApiResources = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources ORDER BY IsActive DESC, Name", connectionString).ToList();
             var authScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes ORDER BY ScopeName", connectionString).ToList();
@@ -33,7 +44,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetClient")]
         public async Task<IActionResult> GetClient(Guid clientId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE Id='{clientId.ToString()}'", connectionString).FirstOrDefault();
             return Ok(authClient);
         }
@@ -42,7 +52,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetApi")]
         public async Task<IActionResult> GetApi(Guid apiId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var authApiResource = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources WHERE Id='{apiId.ToString()}'", connectionString).FirstOrDefault();
             return Ok(authApiResource);
         }
@@ -51,7 +60,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetScope")]
         public async Task<IActionResult> GetScope(Guid scopeId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var scope = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE Id='{scopeId.ToString()}'", connectionString).FirstOrDefault();
             return Ok(scope);
         }
@@ -61,7 +69,6 @@ namespace IdentityServerHost.Quickstart.UI
         public async Task<IActionResult> GetClientScopes(Guid clientId)
         {
             //NOTE: Requires 'dbo.Split' function in database
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var authClient = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName IN(SELECT * FROM dbo.Split((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
             return Ok(authClient);
         }
@@ -70,7 +77,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetApiScopes")]
         public async Task<IActionResult> GetApiScopes(Guid apiId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var apiScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName IN(SELECT * FROM dbo.Split((SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'), ','))", connectionString);
             return Ok(apiScopes);
         }
@@ -80,7 +86,6 @@ namespace IdentityServerHost.Quickstart.UI
         public async Task<IActionResult> GetClientNonAssignedScopes(Guid clientId)
         {
             //NOTE: Requires 'dbo.Split' function in database
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             if (clientId != Guid.Empty)
             {
                 var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM dbo.Split((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
@@ -97,7 +102,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetApiNonAssignedScopes")]
         public async Task<IActionResult> GetApiNonAssignedScopes(Guid apiId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var apiScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM dbo.Split((SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'), ','))", connectionString);
             return Ok(apiScopes);
         }
@@ -106,7 +110,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("AssignNewScopesToClient")]
         public async Task<IActionResult> AssignNewScopesToClient(Guid clientId, string newScopes)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var existingScopes = SqlHelper.Query<string>($"SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'", connectionString).FirstOrDefault();
             if (existingScopes != null)
             {
@@ -120,7 +123,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("AssignNewScopesToApi")]
         public async Task<IActionResult> AssignNewScopesToApi(Guid apiId, string newScopes)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var existingScopes = SqlHelper.Query<string>($"SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'", connectionString).FirstOrDefault();
             if (existingScopes != null)
             {
@@ -135,7 +137,6 @@ namespace IdentityServerHost.Quickstart.UI
         public async Task<IActionResult> DeleteClientScope(Guid clientId, string scopeName)
         {
             var newScopes = "";
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var existingScopes = SqlHelper.Query<string>($"SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'", connectionString).FirstOrDefault();
             var scopesList = existingScopes.Split(",").ToList();
             scopesList.Remove(scopeName);
@@ -159,7 +160,6 @@ namespace IdentityServerHost.Quickstart.UI
         public async Task<IActionResult> DeleteApiScope(Guid apiId, string scopeName)
         {
             var newScopes = "";
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             var existingScopes = SqlHelper.Query<string>($"SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'", connectionString).FirstOrDefault();
             var scopesList = existingScopes.Split(",").ToList();
             scopesList.Remove(scopeName);
@@ -184,7 +184,6 @@ namespace IdentityServerHost.Quickstart.UI
         {
             try
             {
-                var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
                 if (client.Id == null)
                 {
                     client.Id = Guid.NewGuid();
@@ -205,7 +204,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("SaveApi")]
         public async Task<IActionResult> SaveApi(AuthApiResources api)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             if (api.Id == null)
             {
                 api.Id = Guid.NewGuid();
@@ -222,7 +220,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("SaveScope")]
         public async Task<IActionResult> SaveScope(AuthScope scope)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             if (scope.Id == null)
             {
                 scope.Id = Guid.NewGuid();
@@ -239,7 +236,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("EnableDisableClient")]
         public async Task<IActionResult> EnableDisableClient(Guid clientId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             SqlHelper.Query<string>($"UPDATE AuthClients SET IsActive=IsActive^1 WHERE Id='{clientId}'", connectionString).FirstOrDefault();
             return Ok(true);
         }
@@ -248,7 +244,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("EnableDisableApi")]
         public async Task<IActionResult> EnableDisableApi(Guid apiId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             SqlHelper.Query<string>($"UPDATE AuthApiResources SET IsActive=IsActive^1 WHERE Id='{apiId}'", connectionString).FirstOrDefault();
             return Ok(true);
         }
@@ -257,7 +252,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("DeleteClient")]
         public async Task<IActionResult> DeleteClient(Guid clientId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             SqlHelper.Query<string>($"DELETE FROM AuthClients WHERE Id='{clientId}'", connectionString).FirstOrDefault();
             return Ok(true);
         }
@@ -266,7 +260,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("DeleteApi")]
         public async Task<IActionResult> DeleteApi(Guid apiId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             SqlHelper.Query<string>($"DELETE FROM AuthApiResources WHERE Id='{apiId}'", connectionString).FirstOrDefault();
             return Ok(true);
         }
@@ -275,7 +268,6 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("DeleteScope")]
         public async Task<IActionResult> DeleteScope(Guid scopeId)
         {
-            var connectionString = "Server=DESKTOP-QJ02OLT\\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
             SqlHelper.Query<string>($"DELETE FROM AuthScopes WHERE Id='{scopeId}'", connectionString).FirstOrDefault();
             return Ok(true);
         }

@@ -9,15 +9,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using static IdentityModel.OidcConstants;
 using GrantTypes = IdentityServer4.Models.GrantTypes;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthServer
 {
     public class MyClientStore : IClientStore
     {
+        private readonly IConfiguration config;
+        private readonly string connectionString;
+
+        public MyClientStore(IConfiguration config)
+        {
+            this.config = config;
+            this.connectionString = config.GetConnectionString("AuthConfigDatabase");
+        }
+
         public async Task<IdentityServer4.Models.Client> FindClientByIdAsync(string clientId)
         {
-            var connectionString = @"Server=DESKTOP-QJ02OLT\SQLEXPRESS;Database=Inventory;Trusted_Connection=True;";
-            var client = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{clientId}' AND IsActive=1", connectionString).FirstOrDefault();
+            var client = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{clientId}'", connectionString).FirstOrDefault();
             if (client != null)
             {
                 var allowedScopes = new List<string>() { "openid", "profile" };

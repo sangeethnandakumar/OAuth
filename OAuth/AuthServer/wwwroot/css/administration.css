@@ -26,7 +26,13 @@
 
 
 
-
+.logincard {
+    width: 400px;
+}
+.consentcard {
+    width: 600px;
+    text-align: start;
+}
 
 
 .form-signin {
@@ -102,7 +108,7 @@
     margin-top: 10px;
 }
 
-.mt3{
+.mt3 {
     margin-top: 30px !important;
 }
 

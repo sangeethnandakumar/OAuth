@@ -254,7 +254,13 @@ function loadClientDetails(clientId) {
         $('#code').addClass('csharp');
 
         switch (response.allowedGrantTypes) {
-            case "code":
+            case "code":             
+                var scopeList = "";
+                var scopesAllowed = response.allowedScopes;
+                if (scopesAllowed != null)
+                for (var i = 0; i < scopesAllowed.split(',').length; i++) {
+                    scopeList += `\n        opt.Scope.Add("` + scopesAllowed.split(',')[i] + `");`;
+                }
                 var code = `
 //Install Packages
 //IdentityModel
@@ -283,6 +289,10 @@ public void ConfigureServices(IServiceCollection services)
         opt.ClientSecret = "`+ response.clientSecret +`";
         opt.UseTokenLifetime = true;
         opt.SaveTokens = true;
+
+        opt.Scope.Clear();
+        opt.Scope.Add("openid");
+        opt.Scope.Add("profile");`+ scopeList +`
     });
 }
 
@@ -559,7 +569,6 @@ Console.WriteLine("\n\n");`;
     });
 
     $.get("Administration/GetClientScopes", { clientId: clientId }, function (response) {
-        console.log(response);
         var html = '';
         for (var i = 0; i < response.length; i++) {
             html += `<tr>
@@ -574,7 +583,6 @@ Console.WriteLine("\n\n");`;
     });
 
     $.get("Administration/GetClientNonAssignedScopes", { clientId: clientId }, function (response) {
-        console.log(response);
         var html = '';
         for (var i = 0; i < response.length; i++) {
             html += `<option value="` + response[i].scopeName +`">` + response[i].scopeName + `</option>`;
@@ -599,6 +607,7 @@ function getScopesCsv(tableid) {
             csv += data
         }
     }
+    debugger
     return csv;
 }
 
