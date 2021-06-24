@@ -281,7 +281,7 @@ namespace IdentityServerHost.Quickstart.UI
             if(context!=null)
             {
                 var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
-                var ssoAuthorityName = "SAMMS";
+                var ssoAuthorityName = "Google";
 
                 return new LoginViewModel
                 {
