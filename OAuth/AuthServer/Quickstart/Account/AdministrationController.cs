@@ -68,8 +68,8 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetClientScopes")]
         public async Task<IActionResult> GetClientScopes(Guid clientId)
         {
-            //NOTE: Requires 'dbo.Split' function in database
-            var authClient = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName IN(SELECT * FROM dbo.Split((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
+            //NOTE: Requires 'STRING_SPLIT' function in database
+            var authClient = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName IN(SELECT * FROM STRING_SPLIT((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
             return Ok(authClient);
         }
 
@@ -77,7 +77,7 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetApiScopes")]
         public async Task<IActionResult> GetApiScopes(Guid apiId)
         {
-            var apiScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName IN(SELECT * FROM dbo.Split((SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'), ','))", connectionString);
+            var apiScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName IN(SELECT * FROM STRING_SPLIT((SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'), ','))", connectionString);
             return Ok(apiScopes);
         }
 
@@ -85,10 +85,10 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetClientNonAssignedScopes")]
         public async Task<IActionResult> GetClientNonAssignedScopes(Guid clientId)
         {
-            //NOTE: Requires 'dbo.Split' function in database
+            //NOTE: Requires 'STRING_SPLIT' function in database
             if (clientId != Guid.Empty)
             {
-                var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM dbo.Split((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
+                var scopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM STRING_SPLIT((SELECT AllowedScopes FROM AuthClients WHERE Id='{clientId.ToString()}'), ','))", connectionString);
                 return Ok(scopes);
             }
             else
@@ -102,7 +102,7 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetApiNonAssignedScopes")]
         public async Task<IActionResult> GetApiNonAssignedScopes(Guid apiId)
         {
-            var apiScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM dbo.Split((SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'), ','))", connectionString);
+            var apiScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes WHERE ScopeName NOT IN(SELECT * FROM STRING_SPLIT((SELECT SupportedScopes FROM AuthApiResources WHERE Id='{apiId.ToString()}'), ','))", connectionString);
             return Ok(apiScopes);
         }
 
