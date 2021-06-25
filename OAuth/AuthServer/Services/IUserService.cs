@@ -10,6 +10,6 @@ namespace AuthServer.Services
     {
         Task<bool> ValidateUser(string username, string password);
 
-        Task<User> GetUserDetails(string username);
+        Task<AuthUsers> GetUserDetails(string username);
     }
 }

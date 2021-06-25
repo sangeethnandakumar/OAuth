@@ -278,10 +278,12 @@ namespace IdentityServerHost.Quickstart.UI
                 }
             }
 
-            if(context!=null)
+            if (context != null)
             {
                 var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
-                var ssoAuthorityName = "Google";
+
+                var authorityName = config.GetValue<string>("AuthorityName");
+                var ssoAuthorityName = authorityName;
 
                 return new LoginViewModel
                 {

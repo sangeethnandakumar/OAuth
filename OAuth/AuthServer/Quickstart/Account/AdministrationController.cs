@@ -9,14 +9,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
-
 namespace IdentityServerHost.Quickstart.UI
 {
-    [AllowAnonymous]
     [Route("[controller]")]
     public class AdministrationController : Controller
     {
-
         private readonly IConfiguration config;
         private readonly string connectionString;
 
@@ -194,9 +191,9 @@ namespace IdentityServerHost.Quickstart.UI
                     SqlHelper.Update<AuthClient>(client, connectionString);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-            }            
+            }
             return Ok();
         }
 

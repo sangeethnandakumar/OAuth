@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-sm-12 mt3">
 
-                    <h1 class="text-center login-title">@Model.ClientDisplayName requests access to your account</h1>
+                    <h1 class="text-center login-title">@Model.ClientDisplayName requests you to login your account</h1>
                     <h1 class="text-center">Continue To <b>@Model.ClientDisplayName</b></h1>
 
                     <h5 class="text-center">By Signing with your @Model.SingleSignOnAuthorityName Account</h5>
@@ -32,11 +32,11 @@
                                 <button class="btn btn-lg btn-primary btn-block" type="submit" value="login" name="button">
                                     Sign in
                                 </button>
-                                <label class="checkbox pull-left">
+                                @*<label class="checkbox pull-left">
                                     <input type="checkbox" value="remember-me" asp-for="RememberLogin">
                                     Remember me
                                 </label>
-                                <a href="#" class="pull-right need-help">Need help? </a><span class="clearfix"></span>
+                                <a href="#" class="pull-right need-help">Need help? </a><span class="clearfix"></span>*@
                             </form>
                         </div>
                     </center>

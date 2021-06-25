@@ -30,7 +30,7 @@ namespace AuthServer
              Use DynamicalyManagedAuth if you want to administrate clients, api resources and scopes on run
              DynamicalyManagedAuth also allows managing auth server directly from administration dashboard
              */
-            var DynamicalyManagedAuth = true;
+            var DynamicalyManagedAuth = Configuration.GetValue<bool>("DynamicalyManagedAuth");
 
             if (DynamicalyManagedAuth)
             {
