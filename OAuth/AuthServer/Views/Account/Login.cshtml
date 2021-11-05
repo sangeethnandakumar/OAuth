@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-sm-12 mt3">
 
-                    <h1 class="text-center login-title">@Model.ClientDisplayName requests access to your account</h1>
+                    <h1 class="text-center login-title">@Model.ClientDisplayName requests you to login your account</h1>
                     <h1 class="text-center">Continue To <b>@Model.ClientDisplayName</b></h1>
 
                     <h5 class="text-center">By Signing with your @Model.SingleSignOnAuthorityName Account</h5>
@@ -28,18 +28,18 @@
                         <img src="https://gifimage.net/wp-content/uploads/2018/11/load-gif-image-in-android-7.gif"/>
 
                         <div class="account-wall logincard">
-                            <img class="center" src="/images/authoritylogo.png" alt="Login Authority Logo">
+                            <img class="center" src="/images/authcentral.webp" alt="Login Authority Logo">
                             <form class="form-signin mt-2" asp-route="Login">
                                 <input asp-for="Username" type="text" class="form-control" placeholder="Username" required autofocus>
                                 <input asp-for="Password" type="password" class="form-control" placeholder="Password" required>
                                 <button class="btn btn-lg btn-primary btn-block" type="submit" value="login" name="button">
                                     Sign in
                                 </button>
-                                <label class="checkbox pull-left">
+                                @*<label class="checkbox pull-left">
                                     <input type="checkbox" value="remember-me" asp-for="RememberLogin">
                                     Remember me
                                 </label>
-                                <a href="#" class="pull-right need-help">Need help? </a><span class="clearfix"></span>
+                                <a href="#" class="pull-right need-help">Need help? </a><span class="clearfix"></span>*@
                             </form>
                         </div>
                     </center>

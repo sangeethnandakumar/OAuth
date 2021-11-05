@@ -1,4 +1,6 @@
 ﻿using AuthServer.Configuration;
+using ExpressData;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,21 +10,29 @@ namespace AuthServer.Services
 {
     public class UserService : IUserService
     {
-        public async Task<User> GetUserDetails(string username)
+        private readonly IConfiguration configuration;
+        private readonly string connectionString;
+
+        public UserService(IConfiguration configuration)
         {
-            return new User
-            {
-                FirstName = "Sangeeth",
-                LastName = "Nandakumar",
-                Id = Guid.NewGuid(),
-                Username = "sangee",
-                Email = "sangee@gmail.com"
-            };
+            this.configuration = configuration;
+            this.connectionString = configuration.GetConnectionString("AuthConfigDatabase");
+        }
+
+        public async Task<AuthUsers> GetUserDetails(string username)
+        {
+            var authUser = SqlHelper.Query<AuthUsers>($"SELECT TOP 1 * FROM AuthUsers WHERE Username='{username}'", connectionString).FirstOrDefault();
+            return authUser;
         }
 
         public async Task<bool> ValidateUser(string username, string password)
         {
-            return true;
+            var authUser = SqlHelper.Query<AuthUsers>($"SELECT TOP 1 * FROM AuthUsers WHERE Username='{username}' AND Password='{password}' AND IsActive=1", connectionString).FirstOrDefault();
+            if (authUser != null)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
