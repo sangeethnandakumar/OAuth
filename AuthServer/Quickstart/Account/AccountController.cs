@@ -280,7 +280,7 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (context != null)
             {
-                var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
+                var authClient = SqlHelper.Query<ApiClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
 
                 var authorityName = config.GetValue<string>("AuthorityName");
                 var ssoAuthorityName = authorityName;

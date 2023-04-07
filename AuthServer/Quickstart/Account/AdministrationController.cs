@@ -25,7 +25,7 @@ namespace IdentityServerHost.Quickstart.UI
 
         public async Task<IActionResult> Index()
         {
-            var authClients = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients ORDER BY IsActive DESC, ClientName", connectionString).ToList();
+            var authClients = SqlHelper.Query<ApiClient>($"SELECT * FROM AuthClients ORDER BY IsActive DESC, ClientName", connectionString).ToList();
             var authApiResources = SqlHelper.Query<AuthApiResources>($"SELECT * FROM AuthApiResources ORDER BY IsActive DESC, Name", connectionString).ToList();
             var authScopes = SqlHelper.Query<AuthScope>($"SELECT * FROM AuthScopes ORDER BY ScopeName", connectionString).ToList();
             var vm = new AdministrationVM
@@ -41,7 +41,7 @@ namespace IdentityServerHost.Quickstart.UI
         [Route("GetClient")]
         public async Task<IActionResult> GetClient(Guid clientId)
         {
-            var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE Id='{clientId.ToString()}'", connectionString).FirstOrDefault();
+            var authClient = SqlHelper.Query<ApiClient>($"SELECT * FROM AuthClients WHERE Id='{clientId.ToString()}'", connectionString).FirstOrDefault();
             return Ok(authClient);
         }
 
@@ -177,19 +177,19 @@ namespace IdentityServerHost.Quickstart.UI
 
         [HttpPost]
         [Route("SaveClient")]
-        public async Task<IActionResult> SaveClient(AuthClient client)
+        public async Task<IActionResult> SaveClient(ApiClient client)
         {
             try
             {
-                if (client.Id == null)
-                {
-                    client.Id = Guid.NewGuid();
-                    SqlHelper.Insert<AuthClient>(client, connectionString);
-                }
-                else
-                {
-                    SqlHelper.Update<AuthClient>(client, connectionString);
-                }
+                //if (client.Id == null)
+                //{
+                //    client.Id = Guid.NewGuid();
+                //    SqlHelper.Insert<ApiClient>(client, connectionString);
+                //}
+                //else
+                //{
+                //    SqlHelper.Update<ApiClient>(client, connectionString);
+                //}
             }
             catch (Exception ex)
             {

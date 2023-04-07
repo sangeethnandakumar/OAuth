@@ -8,7 +8,7 @@ namespace AuthServer.Models
 {
     public class AdministrationVM
     {
-        public List<AuthClient> AuthClient { get; set; }
+        public List<ApiClient> AuthClient { get; set; }
         public List<AuthApiResources> AuthApiResources { get; set; }
         public List<AuthScope> AuthScopes { get; set; }
     }

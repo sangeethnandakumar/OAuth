@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AuthServer
 {
-    public class ApiResource
+    public class ApiResource2
     {
         public string Name { get; set; }
         public string DisplayName { get; set; }
@@ -28,7 +28,7 @@ namespace AuthServer
     public class OAuthConfig
     {
         public int IdentityServerCookieLifetime { get; set; }
-        public List<ApiResource> ApiResources { get; set; }
+        public List<ApiResource2> ApiResources { get; set; }
         public List<string> ApiScopes { get; set; }
         public List<Client> Clients { get; set; }
 

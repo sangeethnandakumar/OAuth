@@ -190,7 +190,7 @@ namespace IdentityServerHost.Quickstart.UI
             AuthorizationRequest request)
         {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            var authClient = SqlHelper.Query<AuthClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
+            var authClient = SqlHelper.Query<ApiClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
             var ssoAuthorityName = "SAMMS";
 
 
