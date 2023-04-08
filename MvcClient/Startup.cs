@@ -34,21 +34,15 @@ namespace MVCClient
             {
                 opt.SignInScheme = "Cookies";
                 opt.Authority = "https://localhost:5005";
-                opt.ClientId = "mvc-client";
+                opt.ClientId = "twileloop-surveys-web";
                 opt.ResponseType = "code";                
-                opt.ClientSecret = "MVCSecret";
+                opt.ClientSecret = "admin";
                 opt.UseTokenLifetime = true;
                 opt.SaveTokens = true;
 
                opt.Scope.Clear();
-               opt.Scope.Add("openid");
-               opt.Scope.Add("profile");
-
-                opt.Scope.Add("scx-api.meetings");
-                opt.Scope.Add("scx-api.management");
-                opt.Scope.Add("scx-api.exports");
-                opt.Scope.Add("scx-api.services");
-
+               opt.Scope.Add("read");
+               opt.Scope.Add("write");
             });
         }
 

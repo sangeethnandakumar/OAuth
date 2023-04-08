@@ -20,6 +20,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Twileloop.UOW;
+using AuthServer;
+using Microsoft.Extensions.Options;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -33,6 +36,7 @@ namespace IdentityServerHost.Quickstart.UI
     public class AccountController : Controller
     {
         private readonly TestUserStore _users;
+        private readonly IOptions<DbConfig> dbOptions;
         private readonly IUserService userService;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
@@ -49,11 +53,13 @@ namespace IdentityServerHost.Quickstart.UI
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
+            IOptions<DbConfig> dbOptions,
             TestUserStore users = null)
         {
             // if the TestUserStore is not in DI, then we'll just use the global users collection
             // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
             _users = users ?? new TestUserStore(TestUsers.Users);
+            this.dbOptions = dbOptions;
             this.userService = userService;
             _interaction = interaction;
             _clientStore = clientStore;
@@ -117,11 +123,20 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (ModelState.IsValid)
             {
-                // validate username/password against in-memory store
-                var isUserExist = await userService.ValidateUser(model.Username, model.Password);
+                bool isUserExist = false;
+                using (var uow = new UnitOfWork(dbOptions.Value.IdentityDatatabase)) {
+                    var usersRepo = uow.GetRepository<AuthUsers>();
+                    isUserExist = usersRepo.Find(x => x.Username == model.Username && x.Password == model.Password).Any();
+                }
+
                 if (isUserExist)
                 {
-                    var user = await userService.GetUserDetails(model.Username);
+                    AuthUsers user;
+                    using (var uow = new UnitOfWork(dbOptions.Value.IdentityDatatabase)) {
+                        var usersRepo = uow.GetRepository<AuthUsers>();
+                        user = usersRepo.Find(x => x.Username == model.Username && x.Password == model.Password).FirstOrDefault();
+                    }
+
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.Id.ToString(), user.LastName, clientId: context?.Client.ClientId));
                     AuthenticationProperties props = null;
                     if (AccountOptions.AllowRememberLogin && model.RememberLogin)
@@ -280,7 +295,11 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (context != null)
             {
-                var authClient = SqlHelper.Query<ApiClient>($"SELECT * FROM AuthClients WHERE ClientId='{context.Client.ClientId}'", connectionString).FirstOrDefault();
+                IdentityServer4.Models.Client authClient;
+                using (var uow = new UnitOfWork(dbOptions.Value.AuthConfigDatabase)) {
+                    var clientRepo = uow.GetRepository<IdentityServer4.Models.Client>();
+                    authClient = clientRepo.Find(x => x.ClientId == context.Client.ClientId).FirstOrDefault();
+                }
 
                 var authorityName = config.GetValue<string>("AuthorityName");
                 var ssoAuthorityName = authorityName;
@@ -293,11 +312,10 @@ namespace IdentityServerHost.Quickstart.UI
                     Username = context?.LoginHint,
                     ExternalProviders = providers.ToArray(),
                     ClientDisplayName = authClient.ClientName,
-                    ClientIcon = authClient.Logo,
-                    IsBeta = authClient.IsBeta,
-                    Is3rdParty = authClient.Is3rdParty,
+                    ClientIcon = "https://twileloop.com/images/logo.png",
+                    IsBeta = false,
                     SingleSignOnAuthorityName = ssoAuthorityName,
-                    IsActive = authClient.IsActive
+                    IsActive = true
                 };
             }
             return null;
