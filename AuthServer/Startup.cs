@@ -31,6 +31,7 @@ namespace AuthServer
             services.AddIdentityServer(options =>
             {
                 options.Authentication.CookieLifetime = TimeSpan.FromSeconds(config.IdentityServerCookieLifetime);
+                options.IssuerUri = "https://auth.twileloop.com";
             })
                 .AddDeveloperSigningCredential()
                 .AddCorsPolicyService<MyCORSPolicy>()
