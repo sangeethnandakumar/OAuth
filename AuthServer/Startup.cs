@@ -54,9 +54,16 @@ namespace AuthServer
 
             app.UseRouting();
 
-            app.UseForwardedHeaders(new ForwardedHeadersOptions {
-                ForwardedHeaders = ForwardedHeaders.XForwardedProto
-            });
+            //reverse Proxy Settings
+            var forwardOptions = new ForwardedHeadersOptions {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+                RequireHeaderSymmetry = false
+            };
+            forwardOptions.KnownNetworks.Clear();
+            forwardOptions.KnownProxies.Clear();
+            app.UseForwardedHeaders(forwardOptions);
+
+
 
             app.UseIdentityServer();
 
