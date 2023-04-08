@@ -32,38 +32,38 @@ namespace MVCClient.Controllers
         [Authorize]
         public async Task<IActionResult> Privacy()
         {
-            var result = await HttpContext.AuthenticateAsync();
-            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            //var result = await HttpContext.AuthenticateAsync();
+            //var accessToken = await HttpContext.GetTokenAsync("access_token");
 
-            //Try to hit API
-            var client = new HttpClient();
-            var disco = await client.GetDiscoveryDocumentAsync("https://localhost:5005");
-            if (!disco.IsError)
-            {
-                var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-                {
-                    Address = disco.TokenEndpoint,
-                    ClientId = "mvc-client-requester",
-                    ClientSecret = "MVCSecret",
-                    Scope = "Api1"
-                });
+            ////Try to hit API
+            //var client = new HttpClient();
+            //var disco = await client.GetDiscoveryDocumentAsync("https://localhost:5005");
+            //if (!disco.IsError)
+            //{
+            //    var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            //    {
+            //        Address = disco.TokenEndpoint,
+            //        ClientId = "mvc-client-requester",
+            //        ClientSecret = "MVCSecret",
+            //        Scope = "Api1"
+            //    });
 
-                if (tokenResponse.IsError)
-                {
-                    Console.WriteLine(tokenResponse.Error);
-                }
+            //    if (tokenResponse.IsError)
+            //    {
+            //        Console.WriteLine(tokenResponse.Error);
+            //    }
 
-                var token = tokenResponse.AccessToken;
+            //    var token = tokenResponse.AccessToken;
 
-                var clientA = new RestClient("https://localhost:44365/WeatherForecast");
-                clientA.Timeout = -1;
-                var request = new RestRequest(Method.GET);
-                request.AddHeader("Authorization", $"Bearer {token}");
-                IRestResponse response = clientA.Execute(request);
-                Console.WriteLine(response.Content);
-            }
+            //    var clientA = new RestClient("https://localhost:44365/WeatherForecast");
+            //    clientA.Timeout = -1;
+            //    var request = new RestRequest(Method.GET);
+            //    request.AddHeader("Authorization", $"Bearer {token}");
+            //    IRestResponse response = clientA.Execute(request);
+            //    Console.WriteLine(response.Content);
+            //}
 
-            return View(result);
+            return View();
         }
     }
 }

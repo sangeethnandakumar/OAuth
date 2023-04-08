@@ -5,9 +5,8 @@
 <head>
     <script src="~/js/jquery.js"></script>
     <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-
     <link href="~/css/administration.css" rel="stylesheet" />
-    <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:; default-src 'self'">
+   @* <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:; default-src 'self'">*@
 </head>
 <body>
     @if (Model.IsActive)
@@ -15,20 +14,18 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 mt3">
-                    <img class="profile-img" src="@Model.ClientIcon" />
+                    <img class="profile-img" src="/images/shield.png" />
                 </div>
                 <div class="col-sm-12 mt3">
 
                     <h1 class="text-center login-title">@Model.ClientDisplayName requests you to login your account</h1>
                     <h1 class="text-center">Continue To <b>@Model.ClientDisplayName</b></h1>
 
-                    <h5 class="text-center">By Signing with your @Model.SingleSignOnAuthorityName Account</h5>
+                    <h5 class="text-center">By Signing with your @Model.SingleSignOnAuthorityName account</h5>
                     <center>
 
-                        <img src="https://gifimage.net/wp-content/uploads/2018/11/load-gif-image-in-android-7.gif"/>
-
                         <div class="account-wall logincard">
-                            <img class="center" src="/images/authcentral.webp" alt="Login Authority Logo">
+                            <img class="center" src="@Model.ClientIcon" alt="Login Authority Logo">
                             <form class="form-signin mt-2" asp-route="Login">
                                 <input asp-for="Username" type="text" class="form-control" placeholder="Username" required autofocus>
                                 <input asp-for="Password" type="password" class="form-control" placeholder="Password" required>
@@ -43,7 +40,8 @@
                             </form>
                         </div>
                     </center>
-                    <a href="#" class="text-center new-account">Create an account </a>
+                    <a href="#" class="text-center new-account">Create an account</a>
+                    <a href="#" class="text-center new-account">Forget username/password</a>
                 </div>
             </div>
         </div>
