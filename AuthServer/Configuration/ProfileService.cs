@@ -59,7 +59,7 @@ namespace AuthServer.Configuration {
 
         public Task IsActiveAsync(IsActiveContext context) {
             context.IsActive = true;
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }
