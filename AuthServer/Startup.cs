@@ -1,5 +1,6 @@
 using AuthServer.Configuration;
 using AuthServer.Services;
+using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -49,10 +50,11 @@ namespace AuthServer {
 
             app.UseRouting();
 
-            //reverse Proxy Settings
-            app.UseForwardedHeaders(new ForwardedHeadersOptions {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-                RequireHeaderSymmetry = false
+            //Reverse Proxy Settings
+            app.Use(async (ctx, next) =>
+            {
+                ctx.SetIdentityServerOrigin("https://auth.twileloop.com");
+                await next();
             });
 
             app.UseIdentityServer();
