@@ -26,12 +26,13 @@ namespace MVCClient {
             .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", opt => {
                 opt.SignInScheme = "Cookies";
-                opt.Authority = "https://localhost:5005";
+                opt.Authority = "https://auth.twileloop.com/";
                 opt.ClientId = "twileloop-surveys-web";
                 opt.ResponseType = "code";
                 opt.ClientSecret = "admin";
                 opt.UseTokenLifetime = true;
                 opt.SaveTokens = true;
+                opt.RequireHttpsMetadata = false;
 
                 opt.Scope.Clear();
                 opt.Scope.Add("openid");
