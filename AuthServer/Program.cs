@@ -17,7 +17,7 @@ namespace AuthServer {
             //    try {
 
             //        var user = repo.GetAll().FirstOrDefault();
-            //        user.AllowedScopes = new string[] { "openid", "read", "write" };
+            //        user.AllowedCorsOrigins = new string[] { "*", "https://localhost:44410" };
             //        repo.Update(user);
 
             //        unitOfWork.Commit();

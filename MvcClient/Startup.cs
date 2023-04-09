@@ -32,7 +32,6 @@ namespace MVCClient {
                 opt.ClientSecret = "admin";
                 opt.UseTokenLifetime = true;
                 opt.SaveTokens = true;
-                opt.RequireHttpsMetadata = false;
 
                 opt.Scope.Clear();
                 opt.Scope.Add("openid");
