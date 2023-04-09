@@ -137,7 +137,7 @@ namespace IdentityServerHost.Quickstart.UI
                         user = usersRepo.Find(x => x.Username == model.Username && x.Password == model.Password).FirstOrDefault();
                     }
 
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.Id.ToString(), user.LastName, clientId: context?.Client.ClientId));
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.Username.ToString(), user.LastName, clientId: context?.Client.ClientId));
                     AuthenticationProperties props = null;
                     if (AccountOptions.AllowRememberLogin && model.RememberLogin)
                     {
@@ -147,7 +147,7 @@ namespace IdentityServerHost.Quickstart.UI
                             ExpiresUtc = DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(5))
                         };
                     };
-                    var isuser = new IdentityServerUser(user.Id.ToString())
+                    var isuser = new IdentityServerUser(user.Username.ToString())
                     {
                         DisplayName = user.Username
                     };
