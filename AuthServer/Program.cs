@@ -17,8 +17,9 @@ namespace AuthServer {
             //    try {
 
             //        var client = repo.GetAll().FirstOrDefault();
-            //        client.IdentityTokenLifetime = 60*60;
+            //        client.IdentityTokenLifetime = 60 * 60;
             //        client.AccessTokenLifetime = 60 * 60;
+            //        client.UserSsoLifetime = 60 * 60;
 
             //        repo.Update(client);
             //        unitOfWork.Commit();
