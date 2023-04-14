@@ -3,6 +3,7 @@ using AuthServer.Services;
 using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,12 @@ namespace AuthServer {
             .AddClientStore<MyClientStore>()
             .AddProfileService<ProfileService>()
             .AddDeveloperSigningCredential();
+
+            services.ConfigureApplicationCookie(options => {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddLiveReload();
