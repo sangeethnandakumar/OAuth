@@ -20,6 +20,7 @@ namespace AuthServer {
             //        client.IdentityTokenLifetime = 60 * 60;
             //        client.AccessTokenLifetime = 60 * 60;
             //        client.UserSsoLifetime = 60 * 60;
+            //        client.AllowOfflineAccess = true;
 
             //        repo.Update(client);
             //        unitOfWork.Commit();
