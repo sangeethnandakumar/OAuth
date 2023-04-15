@@ -17,10 +17,13 @@ namespace AuthServer {
             //    try {
 
             //        var client = repo.GetAll().FirstOrDefault();
+
             //        client.IdentityTokenLifetime = 60 * 60;
             //        client.AccessTokenLifetime = 60 * 60;
             //        client.UserSsoLifetime = 60 * 60;
-            //        client.AllowOfflineAccess = true;
+            //        client.AllowOfflineAccess = false;
+            //        client.AllowPlainTextPkce = false;
+            //        client.RequirePkce = true;
 
             //        repo.Update(client);
             //        unitOfWork.Commit();

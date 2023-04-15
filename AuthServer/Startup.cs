@@ -27,15 +27,21 @@ namespace AuthServer {
             services.Configure<DbConfig>(Configuration.GetSection("ConnectionStrings"));
 
             services.AddIdentityServer(options => {
+                //Set cookie lifetime
                 options.Authentication.CookieLifetime = TimeSpan.FromSeconds(config.IdentityServerCookieLifetime);
             })
+            //For local testing only
             .AddDeveloperSigningCredential()
+            //Configure CORS policy
             .AddCorsPolicyService<MyCORSPolicy>()
+            //Fetch OAuth v2 resources from SQLServer
             .AddResourceStore<MyResourceStore>()
+            //Fetch OAuth v2 clients from SQLServer
             .AddClientStore<MyClientStore>()
-            .AddProfileService<ProfileService>()
-            .AddDeveloperSigningCredential();
+            //Fetch user profiles from SQLServer
+            .AddProfileService<ProfileService>();
 
+            //Set cookie policy
             services.ConfigureApplicationCookie(options => {
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
